@@ -13,9 +13,9 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.0'
-group = 'com.yourname.modid' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'modid'
+version = '1.14.4-0.1.0'
+group = 'com.arrogantgamer.cucurbits' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'cucurbits'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
@@ -109,6 +109,10 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+    // compile against the JEI API but do not include it at runtime
+    compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api")
+    // at runtime, use the full JEI jar
+    runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
@@ -146,4 +150,50 @@ publishing {
             url "file:///${project.projectDir}/mcmodsrepo"
         }
     }
+}
+
+// included from https://cadiboo.github.io/tutorials/1.14.4/forge/1.0-gradle-configuration/
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+  classifier = 'sources'
+    from sourceSets.main.allSource
+}
+build.dependsOn sourcesJar
+
+artifacts {
+  archives sourcesJar
+}
+
+// included from https://cadiboo.github.io/tutorials/1.14.4/forge/1.0-gradle-configuration/
+
+// Process resources on build
+processResources {
+  // This will ensure that this task is redone when the versions change.
+  inputs.property 'version', project.version
+
+    // Replace stuff in mods.toml, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+      include 'META-INF/mods.toml'
+
+        // Replace version
+        expand 'version':project.version
+    }
+
+  // Copy everything else except the mods.toml
+  from(sourceSets.main.resources.srcDirs) {
+    exclude 'META-INF/mods.toml'
+  }
+}
+
+repositories {
+  maven {
+    // location of the maven that hosts JEI files
+    name = "Progwml6 maven"
+      url = "https://dvs1.progwml6.com/files/maven/"
+  }
+  maven {
+    // location of a maven mirror for JEI files, as a fallback
+    name = "ModMaven"
+      url = "https://modmaven.k-4u.nl"
+  }
 }
