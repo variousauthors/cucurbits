@@ -5,7 +5,6 @@ import com.arrogantgamer.cucurbits.block.LavamelonBlock;
 import com.arrogantgamer.cucurbits.block.LavamelonStemBlock;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.StemGrownBlock;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.BlockItem;
