@@ -43,12 +43,15 @@ public class LavamelonStemBlock extends StemBlock {
 		if (i < 7) {
 		    worldIn.setBlockState(pos, state.with(AGE, Integer.valueOf(i + 1)), 2);
 		} else {
+		    BlockPos fuelpos = findFuel(worldIn, pos, random);
+
 		    Direction direction = Direction.Plane.HORIZONTAL.random(random);
 		    BlockPos blockpos = pos.offset(direction);
 		    BlockState soil = worldIn.getBlockState(blockpos.down());
 		    Block block = soil.getBlock();
-		    if (worldIn.getBlockState(blockpos).isAir(worldIn, blockpos) && (soil.canSustainPlant(worldIn, blockpos.down(), Direction.UP, this) || block == Blocks.FARMLAND
-			    || block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.PODZOL || block == Blocks.GRASS_BLOCK)) {
+		    if (canFruit(worldIn, fuelpos, blockpos) && (soil.canSustainPlant(worldIn, blockpos.down(), Direction.UP, this) || block == Blocks.FARMLAND || block == Blocks.DIRT
+			    || block == Blocks.COARSE_DIRT || block == Blocks.PODZOL || block == Blocks.GRASS_BLOCK)) {
+			consumeFuel(worldIn, fuelpos);
 			worldIn.setBlockState(blockpos, this.crop.getDefaultState());
 			worldIn.setBlockState(pos, this.crop.getAttachedStem().getDefaultState().with(HorizontalBlock.HORIZONTAL_FACING, direction));
 		    }
@@ -57,6 +60,33 @@ public class LavamelonStemBlock extends StemBlock {
 	    }
 
 	}
+    }
+    
+    protected void consumeFuel (World worldIn, BlockPos blockpos) {
+	worldIn.setBlockState(blockpos, Blocks.AIR.getDefaultState());
+    }
+
+    @Nullable
+    protected BlockPos findFuel(World worldIn, BlockPos blockpos, Random random) {
+	BlockPos fuelpos = null;
+
+	for (int i = 0; i < 4; ++i) {
+	    fuelpos = blockpos.add(random.nextInt(3) - 1, random.nextInt(5) - 5, random.nextInt(3) - 1);
+
+	    if (worldIn.getBlockState(fuelpos).getMaterial() == Material.LAVA) {
+		break;
+	    }
+	    
+	    fuelpos = null;
+	}
+
+	Cucurbits.LOGGER.debug("fuelpos: " + fuelpos);
+
+	return fuelpos;
+    }
+
+    protected boolean canFruit(World worldIn, @Nullable BlockPos fuelpos, BlockPos blockpos) {
+	return fuelpos != null && worldIn.getBlockState(blockpos).isAir(worldIn, blockpos) && worldIn.getBlockState(fuelpos).getMaterial() == Material.LAVA;
     }
 
     @Nullable

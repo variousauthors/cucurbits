@@ -29,7 +29,8 @@ public class ModEventSubscriber {
 
     @SubscribeEvent
     public static void onRegisterItems(RegistryEvent.Register<Item> event) {
-	event.getRegistry().registerAll(setup(new BlockNamedItem(ModBlocks.LAVAMELON_STEM, (new Item.Properties()).group(ItemGroup.MATERIALS)), "lavamelon_seeds"),
+	event.getRegistry().registerAll(
+		setup(new BlockNamedItem(ModBlocks.LAVAMELON_STEM, (new Item.Properties()).group(ItemGroup.MATERIALS)), "lavamelon_seeds"),
 		setup(new BlockItem(ModBlocks.LAVAMELON, new Item.Properties().group(ItemGroup.BUILDING_BLOCKS)), ModBlocks.LAVAMELON.getRegistryName()));
     }
 
