@@ -4,16 +4,16 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.arrogantgamer.cucurbits.Cucurbits;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.CropsBlock;
 import net.minecraft.block.HorizontalBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.StemBlock;
 import net.minecraft.block.StemGrownBlock;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.util.Direction;
@@ -23,7 +23,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LavamelonStemBlock extends StemBlock {
-    public static Block.Properties properties = Block.Properties.create(Material.EARTH, MaterialColor.DIRT).hardnessAndResistance(0.5F).sound(SoundType.GROUND).tickRandomly();
+    public static Block.Properties properties = Block.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(0.0F).sound(SoundType.STEM);
     protected final StemGrownBlock crop;
 
     public LavamelonStemBlock(StemGrownBlock p_i48318_1_, Properties properties) {
@@ -34,7 +34,6 @@ public class LavamelonStemBlock extends StemBlock {
 
     @Override
     public void tick(BlockState state, World worldIn, BlockPos pos, Random random) {
-	super.tick(state, worldIn, pos, random);
 	if (!worldIn.isAreaLoaded(pos, 1))
 	    return; // Forge: prevent loading unloaded chunks when checking neighbor's light
 	if (worldIn.getLightSubtracted(pos, 0) >= 9) {

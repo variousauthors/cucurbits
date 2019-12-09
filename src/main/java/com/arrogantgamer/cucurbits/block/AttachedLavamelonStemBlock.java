@@ -8,7 +8,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 
 public class AttachedLavamelonStemBlock extends AttachedStemBlock {
-    public static Block.Properties properties = Block.Properties.create(Material.EARTH, MaterialColor.DIRT).hardnessAndResistance(0.5F).sound(SoundType.GROUND).tickRandomly();
+    public static Block.Properties properties = Block.Properties.create(Material.PLANTS).doesNotBlockMovement().hardnessAndResistance(0.0F).sound(SoundType.WOOD);
 
     public AttachedLavamelonStemBlock(StemGrownBlock p_i48449_1_, Properties properties) {
 	super(p_i48449_1_, properties);
