@@ -32,7 +32,11 @@ import net.minecraftforge.fml.common.Mod;
  *      - [] it can be used instead of a lava bucket in recipes
  *        - like... many of the recipes that use lava_bucket return empty bucket
  *          so we'd have to figure that out
+ *      - [] it can be used like a lava bucket in machines
+ *        - seeeeems like it should extend BucketItem and overwrite some methods
  *      - [] it stacks and has the same burntime as lava
+ *        - how? item implements getBurnTime
+ *        
  *      - [x] it has Material.LAVA so maybe the game will treat it weirdly???
  *        - my goal here is to have thermalily treat the fruit as lava
  *        - this won't work...

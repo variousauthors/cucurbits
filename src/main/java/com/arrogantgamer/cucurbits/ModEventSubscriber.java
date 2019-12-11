@@ -3,10 +3,12 @@ package com.arrogantgamer.cucurbits;
 import com.arrogantgamer.cucurbits.block.AttachedLavamelonStemBlock;
 import com.arrogantgamer.cucurbits.block.LavamelonBlock;
 import com.arrogantgamer.cucurbits.block.LavamelonStemBlock;
+import com.arrogantgamer.cucurbits.item.LavamelonItem;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.Items;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockNamedItem;
 import net.minecraft.util.ResourceLocation;
@@ -31,7 +33,8 @@ public class ModEventSubscriber {
     public static void onRegisterItems(RegistryEvent.Register<Item> event) {
 	event.getRegistry().registerAll(
 		setup(new BlockNamedItem(ModBlocks.LAVAMELON_STEM, (new Item.Properties()).group(ItemGroup.MATERIALS)), "lavamelon_seeds"),
-		setup(new BlockItem(ModBlocks.LAVAMELON, new Item.Properties().group(ItemGroup.BUILDING_BLOCKS)), ModBlocks.LAVAMELON.getRegistryName()));
+		// TEMPORARILY setting containerItem to Items.BUCKET but I think we do not want a container item
+		setup(new LavamelonItem(new Item.Properties().group(ItemGroup.BUILDING_BLOCKS)), ModBlocks.LAVAMELON.getRegistryName()));
     }
 
     public static <T extends IForgeRegistryEntry<T>> T setup(final T entry, final String name) {
