@@ -33,7 +33,6 @@ public class ModEventSubscriber {
     public static void onRegisterItems(RegistryEvent.Register<Item> event) {
 	event.getRegistry().registerAll(
 		setup(new BlockNamedItem(ModBlocks.LAVAMELON_STEM, (new Item.Properties()).group(ItemGroup.MATERIALS)), "lavamelon_seeds"),
-		// TEMPORARILY setting containerItem to Items.BUCKET but I think we do not want a container item
 		setup(new LavamelonItem(new Item.Properties().group(ItemGroup.BUILDING_BLOCKS)), ModBlocks.LAVAMELON.getRegistryName()));
     }
 
