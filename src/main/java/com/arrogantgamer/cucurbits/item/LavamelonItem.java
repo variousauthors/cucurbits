@@ -30,11 +30,14 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.IProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
@@ -51,19 +54,36 @@ public class LavamelonItem extends BucketItem {
 	return 20000;
     }    
 
-    // copy/paste from BlockItem
+    /* BucketItem implements this method to let the player dump the lava out of their
+     * bucket, but we can't rightly dump the lava out of a lavamelon! */
+    @Override
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
+	return super.onItemRightClick(worldIn, playerIn, handIn);
+    }        
+    
+    /* used by dispensers to drop the lava out of a bucket... it doesn't quite fit 
+     * with lavamelon. However, we do want to be able to dump the lava out of a side
+     * of the melon using shears later so... */
+    @Override
+    public boolean tryPlaceContainedLiquid(@Nullable PlayerEntity player, World worldIn, BlockPos posIn, @Nullable BlockRayTraceResult p_180616_4_) {
+	return false;
+    }
+    
+    /* copy/paste from BlockItem 
+     * later we can put this into a static behavior 
+     * */
     
     @Deprecated
     private final Block block;
 
     /**
-     * Called when this item is used when targetting a Block
+     * Called when this item is used when targeting a Block
      */
     public ActionResultType onItemUse(ItemUseContext context) {
        ActionResultType actionresulttype = this.tryPlace(new BlockItemUseContext(context));
        return actionresulttype != ActionResultType.SUCCESS && this.isFood() ? this.onItemRightClick(context.getWorld(), context.getPlayer(), context.getHand()).getType() : actionresulttype;
     }
-
+    
     public ActionResultType tryPlace(BlockItemUseContext context) {
        if (!context.canPlace()) {
           return ActionResultType.FAIL;
