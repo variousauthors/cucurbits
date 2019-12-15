@@ -9,8 +9,11 @@ import com.arrogantgamer.cucurbits.block.LavamelonStemBlock;
 import com.arrogantgamer.cucurbits.item.LavamelonItem;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.Rarity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockNamedItem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
@@ -42,7 +45,8 @@ public class ModEventSubscriber {
 		setup(new BlockNamedItem(ModBlocks.LAVAMELON_STEM, (new Item.Properties()).group(ItemGroup.MATERIALS)), "lavamelon_seeds"),
 		setup(new LavamelonItem(new Item.Properties().group(ItemGroup.BUILDING_BLOCKS)), ModBlocks.LAVAMELON.getRegistryName()),
 		
-		setup(new BlockNamedItem(ModBlocks.CORECUMBER_STEM, (new Item.Properties()).group(ItemGroup.MATERIALS)), "corecumber_seeds")
+		setup(new BlockNamedItem(ModBlocks.CORECUMBER_STEM, (new Item.Properties()).group(ItemGroup.MATERIALS)), "corecumber_seeds"),
+		setup(new BlockItem(ModBlocks.CORECUMBER, new Item.Properties()), ModBlocks.CORECUMBER.getRegistryName())		
 		);
     }
 
