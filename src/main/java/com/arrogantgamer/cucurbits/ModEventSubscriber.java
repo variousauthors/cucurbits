@@ -7,12 +7,14 @@ import com.arrogantgamer.cucurbits.block.CorecumberStemBlock;
 import com.arrogantgamer.cucurbits.block.LavamelonBlock;
 import com.arrogantgamer.cucurbits.block.LavamelonStemBlock;
 import com.arrogantgamer.cucurbits.item.LavamelonItem;
+import com.arrogantgamer.cucurbits.tileEntity.CorecumberTileEntity;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Rarity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockNamedItem;
 import net.minecraft.util.ResourceLocation;
@@ -49,6 +51,15 @@ public class ModEventSubscriber {
 		setup(new BlockItem(ModBlocks.CORECUMBER, new Item.Properties()), ModBlocks.CORECUMBER.getRegistryName())		
 		);
     }
+    
+    @SubscribeEvent
+    public static void onRegisterTileEntities(RegistryEvent.Register<TileEntityType<?>> event) {
+	System.out.println("Register");
+	event.getRegistry().register(
+		TileEntityType.Builder.create(CorecumberTileEntity::new, ModBlocks.CORECUMBER).build(null).setRegistryName("corecumber")
+
+		);
+    }    
 
     public static <T extends IForgeRegistryEntry<T>> T setup(final T entry, final String name) {
 	return setup(entry, new ResourceLocation(Cucurbits.MODID, name));
