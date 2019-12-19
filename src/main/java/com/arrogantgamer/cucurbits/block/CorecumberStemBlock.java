@@ -6,8 +6,6 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import com.arrogantgamer.cucurbits.Cucurbits;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -30,8 +28,17 @@ import net.minecraft.world.storage.loot.LootParameters;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+/*
+ *    - [o] it searches below it in a 3x3 column for ores, and makes fruit
+ *    - [] it leaves "porous stone" when it pulls out ores (for now just do mossy cobblestone)
+ *    - [o] the fruit, when broken, drop the drops from the ore
+ *    - [o] how do we store the loot in the fruit!
+ *        - [o] you should not be able to extract/insert items in any way
+ **/
 public class CorecumberStemBlock extends StemBlock {
     public static Block.Properties properties = Block.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(0.0F).sound(SoundType.STEM);
+
+    private ResourceLocation oreTagId = new ResourceLocation("forge", "ores");
     protected final StemGrownBlock crop;
 
     public CorecumberStemBlock(StemGrownBlock p_i48318_1_, Properties properties) {
@@ -59,8 +66,7 @@ public class CorecumberStemBlock extends StemBlock {
 		    Block block = soil.getBlock();
 		    if (canFruit(worldIn, fuelpos, blockpos) && (soil.canSustainPlant(worldIn, blockpos.down(), Direction.UP, this) || block == Blocks.FARMLAND
 			    || block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.PODZOL || block == Blocks.GRASS_BLOCK)) {
-			List<ItemStack> products = consumeFuel(worldIn, fuelpos);
-			worldIn.setBlockState(blockpos, this.getFruit(products));
+			this.createFruit(worldIn, blockpos, fuelpos);
 			worldIn.setBlockState(pos, this.crop.getAttachedStem().getDefaultState().with(HorizontalBlock.HORIZONTAL_FACING, direction));
 		    }
 		}
@@ -70,43 +76,43 @@ public class CorecumberStemBlock extends StemBlock {
 	}
     }
 
-    protected BlockState getFruit (List<ItemStack> products) {
-	if (products.isEmpty()) return this.crop.getDefaultState();
-	
-	Cucurbits.LOGGER.debug("found: ");
-	
-	products.forEach((product) -> {
-	    Cucurbits.LOGGER.debug(product.getItem().getRegistryName());
-	});
-	// get the crop and fill it with the ore we found
-	
-	return this.crop.getDefaultState();
+    protected void createFruit(World worldIn, BlockPos blockpos, BlockPos fuelpos) {
+	if (worldIn.isRemote) {
+	    worldIn.setBlockState(blockpos, this.crop.getDefaultState());
+	    return;
+	}
+
+	List<ItemStack> products = consumeFuel(worldIn, fuelpos);
+
+	if (products.isEmpty()) {
+	    return;
+	}
+
+	if (worldIn.setBlockState(blockpos, this.crop.getDefaultState())) {
+	    CorecumberBlock fruit = (CorecumberBlock) worldIn.getBlockState(blockpos).getBlock();
+	    products.forEach((product) -> fruit.setContainedItem(worldIn, blockpos, product));
+	}
     }
-    
+
     protected List<ItemStack> consumeFuel(World worldIn, BlockPos blockpos) {
 	BlockState potentialOre = worldIn.getBlockState(blockpos);
-	Cucurbits.LOGGER.debug("-> consumeFuel");
 
-	if (isOre(potentialOre)) {
-		Cucurbits.LOGGER.debug("-> isOre");
-	    if (worldIn instanceof ServerWorld) {
-		Cucurbits.LOGGER.debug("-> isServer");
+	if (worldIn instanceof ServerWorld) {
+	    if (isOre(potentialOre)) {
+		LootContext.Builder builder = (new LootContext.Builder((ServerWorld) worldIn)).withRandom(worldIn.rand).withParameter(LootParameters.POSITION, blockpos)
+			.withParameter(LootParameters.TOOL, ItemStack.EMPTY);
 
-                LootContext.Builder builder = (new LootContext.Builder((ServerWorld)worldIn)).withRandom(worldIn.rand).withParameter(LootParameters.POSITION, blockpos).withParameter(LootParameters.TOOL, ItemStack.EMPTY);
 		List<ItemStack> drops = potentialOre.getDrops(builder);
-		// TODO do this later once things are working otherwise we will destroy all the ore down there for testing :D
-		// worldIn.setBlockState(blockpos, Blocks.COBBLESTONE.getDefaultState());	
-		
+
+		worldIn.setBlockState(blockpos, Blocks.MOSSY_COBBLESTONE.getDefaultState());
+
 		return drops;
 	    }
 	}
-	
+
 	return Collections.emptyList();
     }
 
-    private ResourceLocation oreTagId = new ResourceLocation("forge", "ores");
-
-    
     @Nullable
     protected BlockPos findFuel(World worldIn, BlockPos blockpos, Random random) {
 	BlockPos fuelpos = null;
@@ -115,21 +121,16 @@ public class CorecumberStemBlock extends StemBlock {
 	    fuelpos = blockpos.add(random.nextInt(3) - 1, random.nextInt(blockpos.getY()) - blockpos.getY() - 1, random.nextInt(3) - 1);
 	    BlockState potentialOre = worldIn.getBlockState(fuelpos);
 
-	    Cucurbits.LOGGER.debug("fuel found: " + potentialOre.getBlock().getRegistryName());
-
-	    // check the drops for ore tag?
 	    if (isOre(potentialOre)) {
-		Cucurbits.LOGGER.debug("success!");
-
 		break;
-	    };
+	    }
 
 	    fuelpos = null;
 	}
 
 	return fuelpos;
     }
-    
+
     private boolean isOre(BlockState potentialOre) {
 	return BlockTags.getCollection().getOrCreate(oreTagId).contains(potentialOre.getBlock());
     }

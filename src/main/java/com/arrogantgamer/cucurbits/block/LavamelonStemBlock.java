@@ -4,7 +4,6 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import com.arrogantgamer.cucurbits.Cucurbits;
 import com.arrogantgamer.cucurbits.ModItems;
 
 import net.minecraft.block.Block;
@@ -16,7 +15,6 @@ import net.minecraft.block.StemBlock;
 import net.minecraft.block.StemGrownBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
-import net.minecraft.item.Items;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
