@@ -1,10 +1,12 @@
-package com.arrogantgamer.cucurbits.block;
+package com.arrogantgamer.cucurbits.block.corecumber;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nullable;
+
+import com.arrogantgamer.cucurbits.block.ModCropsBlock;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

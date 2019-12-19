@@ -1,4 +1,4 @@
-package com.arrogantgamer.cucurbits.block;
+package com.arrogantgamer.cucurbits.block.lavamelon;
 
 import com.arrogantgamer.cucurbits.ModBlocks;
 

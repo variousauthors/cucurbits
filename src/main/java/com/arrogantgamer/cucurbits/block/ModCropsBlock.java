@@ -12,7 +12,7 @@ public class ModCropsBlock extends CropsBlock {
     }
 
     /* I had to implement this to make CropsBlock.getGrowthChance visible in my package :/ */
-    protected static float getGrowthChance(Block blockIn, IBlockReader worldIn, BlockPos pos) {
+    public static float getGrowthChance(Block blockIn, IBlockReader worldIn, BlockPos pos) {
 	return CropsBlock.getGrowthChance(blockIn, worldIn, pos);
     }
 }

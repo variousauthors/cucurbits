@@ -1,4 +1,4 @@
-package com.arrogantgamer.cucurbits.block;
+package com.arrogantgamer.cucurbits.block.corecumber;
 
 import net.minecraft.block.AttachedStemBlock;
 import net.minecraft.block.Block;

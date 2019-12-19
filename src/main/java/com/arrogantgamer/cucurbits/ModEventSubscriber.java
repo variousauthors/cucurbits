@@ -1,19 +1,17 @@
 package com.arrogantgamer.cucurbits;
 
-import com.arrogantgamer.cucurbits.block.AttachedCorecumberStemBlock;
-import com.arrogantgamer.cucurbits.block.AttachedLavamelonStemBlock;
-import com.arrogantgamer.cucurbits.block.CorecumberBlock;
-import com.arrogantgamer.cucurbits.block.CorecumberStemBlock;
-import com.arrogantgamer.cucurbits.block.LavamelonBlock;
-import com.arrogantgamer.cucurbits.block.LavamelonStemBlock;
+import com.arrogantgamer.cucurbits.block.corecumber.AttachedCorecumberStemBlock;
+import com.arrogantgamer.cucurbits.block.corecumber.CorecumberBlock;
+import com.arrogantgamer.cucurbits.block.corecumber.CorecumberStemBlock;
+import com.arrogantgamer.cucurbits.block.lavamelon.AttachedLavamelonStemBlock;
+import com.arrogantgamer.cucurbits.block.lavamelon.LavamelonBlock;
+import com.arrogantgamer.cucurbits.block.lavamelon.LavamelonStemBlock;
 import com.arrogantgamer.cucurbits.item.LavamelonItem;
 import com.arrogantgamer.cucurbits.tileEntity.CorecumberTileEntity;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.Rarity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockNamedItem;

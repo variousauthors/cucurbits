@@ -1,10 +1,11 @@
-package com.arrogantgamer.cucurbits.block;
+package com.arrogantgamer.cucurbits.block.lavamelon;
 
 import java.util.Random;
 
 import javax.annotation.Nullable;
 
 import com.arrogantgamer.cucurbits.ModItems;
+import com.arrogantgamer.cucurbits.block.ModCropsBlock;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
