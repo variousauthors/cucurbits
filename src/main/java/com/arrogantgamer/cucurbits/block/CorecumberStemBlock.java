@@ -77,11 +77,6 @@ public class CorecumberStemBlock extends StemBlock {
     }
 
     protected void createFruit(World worldIn, BlockPos blockpos, BlockPos fuelpos) {
-	if (worldIn.isRemote) {
-	    worldIn.setBlockState(blockpos, this.crop.getDefaultState());
-	    return;
-	}
-
 	List<ItemStack> products = consumeFuel(worldIn, fuelpos);
 
 	if (products.isEmpty()) {

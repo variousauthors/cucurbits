@@ -8,6 +8,7 @@ import com.arrogantgamer.cucurbits.tileEntity.CorecumberTileEntity;
 import net.minecraft.block.AttachedStemBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.StemBlock;
 import net.minecraft.block.StemGrownBlock;
@@ -45,10 +46,6 @@ public class CorecumberBlock extends StemGrownBlock {
 
     @Override
     public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player) {
-	if (worldIn.isRemote) {
-	    return;
-	}
-	
 	this.spawnContainedItems(worldIn, pos);
 
 	super.onBlockHarvested(worldIn, pos, state, player);

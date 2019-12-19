@@ -16,11 +16,7 @@ import net.minecraftforge.fml.common.Mod;
  *  
  * [] Lavamelon
  * [] Corecumber
- *    - it searches below it in a cross shape for ores, and makes fruit
- *    - it leaves "porous stone" when it pulls out ores (for now just do mossy cobblestone)
- *    - the fruit, when broken, drop the drops from the ore
- *    - how do we store the loot in the fruit!
- *      - you should not be able to extract/insert items in any way
+
  * 
  * */
 @Mod(Cucurbits.MODID)
