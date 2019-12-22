@@ -1,9 +1,9 @@
-package com.arrogantgamer.cucurbits.block.corecumber;
+package com.arrogantgamer.cucurbits.block.squash;
 
 import javax.annotation.Nullable;
 
 import com.arrogantgamer.cucurbits.ModBlocks;
-import com.arrogantgamer.cucurbits.tileEntity.CorecumberTileEntity;
+import com.arrogantgamer.cucurbits.tileEntity.SquashTileEntity;
 
 import net.minecraft.block.AttachedStemBlock;
 import net.minecraft.block.Block;
@@ -21,10 +21,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
-public class CorecumberBlock extends StemGrownBlock {
+public class SquashBlock extends StemGrownBlock {
     public static Block.Properties properties = Block.Properties.create(Material.GOURD, MaterialColor.LIME).hardnessAndResistance(1.0F).sound(SoundType.WOOD);
 
-    public CorecumberBlock(Block.Properties builder) {
+    public SquashBlock(Block.Properties builder) {
 	super(builder);
     }
 
@@ -36,7 +36,7 @@ public class CorecumberBlock extends StemGrownBlock {
     @Nullable
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-	return new CorecumberTileEntity();
+	return new SquashTileEntity();
     }
 
     private TileEntity getTileEntity(World worldIn, BlockPos pos) {
@@ -53,8 +53,8 @@ public class CorecumberBlock extends StemGrownBlock {
     protected void spawnContainedItems (World worldIn, BlockPos pos) {
 	TileEntity te = this.getTileEntity(worldIn, pos);
 
-	if (te instanceof CorecumberTileEntity) {
-	    ItemStack item = ((CorecumberTileEntity) te).extractContainedItem();
+	if (te instanceof SquashTileEntity) {
+	    ItemStack item = ((SquashTileEntity) te).extractContainedItem();
 	    
 	    if (item != null) {
 		InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), item);		
@@ -65,16 +65,16 @@ public class CorecumberBlock extends StemGrownBlock {
     public void setContainedItem(World worldIn, BlockPos pos, ItemStack item) {
 	TileEntity te = this.getTileEntity(worldIn, pos);
 	
-	if (te instanceof CorecumberTileEntity) {
-	    ((CorecumberTileEntity) te).setContainedItem(item);
+	if (te instanceof SquashTileEntity) {
+	    ((SquashTileEntity) te).setContainedItem(item);
 	}
     }
 
     public StemBlock getStem() {
-	return (StemBlock) ModBlocks.CORECUMBER_STEM;
+	return (StemBlock) ModBlocks.SQUASH_STEM;
     }
 
     public AttachedStemBlock getAttachedStem() {
-	return (AttachedStemBlock) ModBlocks.ATTACHED_CORECUMBER_STEM;
+	return (AttachedStemBlock) ModBlocks.ATTACHED_SQUASH_STEM;
     }
 }

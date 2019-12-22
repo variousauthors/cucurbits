@@ -6,6 +6,9 @@ import com.arrogantgamer.cucurbits.block.corecumber.CorecumberStemBlock;
 import com.arrogantgamer.cucurbits.block.lavamelon.AttachedLavamelonStemBlock;
 import com.arrogantgamer.cucurbits.block.lavamelon.LavamelonBlock;
 import com.arrogantgamer.cucurbits.block.lavamelon.LavamelonStemBlock;
+import com.arrogantgamer.cucurbits.block.squash.AttachedSquashStemBlock;
+import com.arrogantgamer.cucurbits.block.squash.SquashBlock;
+import com.arrogantgamer.cucurbits.block.squash.SquashStemBlock;
 import com.arrogantgamer.cucurbits.item.LavamelonItem;
 import com.arrogantgamer.cucurbits.tileEntity.CorecumberTileEntity;
 
@@ -26,17 +29,22 @@ public class ModEventSubscriber {
     @SubscribeEvent
     public static void onRegisterBlocks(RegistryEvent.Register<Block> event) {
 	LavamelonBlock lavamelon = new LavamelonBlock(LavamelonBlock.properties);
-	CorecumberBlock corecumber = new CorecumberBlock(CorecumberBlock.properties);	
+	CorecumberBlock corecumber = new CorecumberBlock(CorecumberBlock.properties);
+	SquashBlock squash = new SquashBlock(SquashBlock.properties);
 
 	event.getRegistry().registerAll(
-		setup(lavamelon, "lavamelon"),
+		setup(lavamelon, "lavamelon"), 
 		setup(new LavamelonStemBlock(lavamelon, LavamelonStemBlock.properties), "lavamelon_stem"),
 		setup(new AttachedLavamelonStemBlock(lavamelon, AttachedLavamelonStemBlock.properties), "attached_lavamelon_stem"),
-		
-		setup(corecumber, "corecumber"),
+
+		setup(corecumber, "corecumber"), 
 		setup(new CorecumberStemBlock(corecumber, LavamelonStemBlock.properties), "corecumber_stem"),
-		setup(new AttachedCorecumberStemBlock(corecumber, AttachedCorecumberStemBlock.properties), "attached_corecumber_stem")		
-		);
+		setup(new AttachedCorecumberStemBlock(corecumber, AttachedCorecumberStemBlock.properties), "attached_corecumber_stem"),
+
+		setup(squash, "squash"), 
+		setup(new SquashStemBlock(squash, SquashStemBlock.properties), "squash_stem"),
+		setup(new AttachedSquashStemBlock(squash, AttachedSquashStemBlock.properties), "attached_squash_stem")
+	);
     }
 
     @SubscribeEvent
@@ -44,20 +52,22 @@ public class ModEventSubscriber {
 	event.getRegistry().registerAll(
 		setup(new BlockNamedItem(ModBlocks.LAVAMELON_STEM, (new Item.Properties()).group(ItemGroup.MATERIALS)), "lavamelon_seeds"),
 		setup(new LavamelonItem(new Item.Properties().group(ItemGroup.BUILDING_BLOCKS)), ModBlocks.LAVAMELON.getRegistryName()),
-		
+
 		setup(new BlockNamedItem(ModBlocks.CORECUMBER_STEM, (new Item.Properties()).group(ItemGroup.MATERIALS)), "corecumber_seeds"),
-		setup(new BlockItem(ModBlocks.CORECUMBER, new Item.Properties()), ModBlocks.CORECUMBER.getRegistryName())		
-		);
+		setup(new BlockItem(ModBlocks.CORECUMBER, new Item.Properties()), ModBlocks.CORECUMBER.getRegistryName()),
+		
+		setup(new BlockNamedItem(ModBlocks.SQUASH_STEM, (new Item.Properties()).group(ItemGroup.MATERIALS)), "squash_seeds"),
+		setup(new BlockItem(ModBlocks.SQUASH, new Item.Properties()), ModBlocks.SQUASH.getRegistryName())
+	);
     }
-    
+
     @SubscribeEvent
     public static void onRegisterTileEntities(RegistryEvent.Register<TileEntityType<?>> event) {
 	System.out.println("Register");
-	event.getRegistry().register(
-		TileEntityType.Builder.create(CorecumberTileEntity::new, ModBlocks.CORECUMBER).build(null).setRegistryName("corecumber")
+	event.getRegistry().register(TileEntityType.Builder.create(CorecumberTileEntity::new, ModBlocks.CORECUMBER).build(null).setRegistryName("corecumber")
 
-		);
-    }    
+	);
+    }
 
     public static <T extends IForgeRegistryEntry<T>> T setup(final T entry, final String name) {
 	return setup(entry, new ResourceLocation(Cucurbits.MODID, name));
