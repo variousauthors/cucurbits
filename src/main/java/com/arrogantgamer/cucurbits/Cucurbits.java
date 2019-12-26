@@ -17,7 +17,12 @@ import net.minecraftforge.fml.common.Mod;
  * Prototype:
  *  - implement the stems and fruit, and basic functionality
  *  - just make them different colors
- *  
+ *  - null pointer exception when you place a corecumber or squash,
+ *    - it should get an empty item stack as its container item
+ *  - stems that break blocks for fuel should skip tile entities (except other gourds)
+ *    - needs a tag called "cucurbits"
+ *  - stems need drops too
+ *      
  * [] Lavamelon
  * [] Corecumber
  * [] Compression Gourd

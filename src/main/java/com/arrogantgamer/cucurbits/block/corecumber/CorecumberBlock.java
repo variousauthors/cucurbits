@@ -56,7 +56,7 @@ public class CorecumberBlock extends StemGrownBlock {
 	if (te instanceof CorecumberTileEntity) {
 	    ItemStack item = ((CorecumberTileEntity) te).extractContainedItem();
 	    
-	    if (item != null) {
+	    if (!item.isEmpty()) {
 		InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), item);		
 	    }
 	}

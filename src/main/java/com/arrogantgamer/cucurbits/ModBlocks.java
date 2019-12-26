@@ -1,6 +1,7 @@
 package com.arrogantgamer.cucurbits;
 
 import com.arrogantgamer.cucurbits.tileEntity.CorecumberTileEntity;
+import com.arrogantgamer.cucurbits.tileEntity.SquashStemTileEntity;
 import com.arrogantgamer.cucurbits.tileEntity.SquashTileEntity;
 
 import net.minecraft.block.Block;
@@ -27,5 +28,8 @@ public final class ModBlocks {
   
   @ObjectHolder("cucurbits:squash")
   public static final TileEntityType<SquashTileEntity> SQUASH_TILE = null;
+  
+  @ObjectHolder("cucurbits:squash_stem")
+  public static final TileEntityType<SquashStemTileEntity> SQUASH_STEM_TILE = null;  
 
 }

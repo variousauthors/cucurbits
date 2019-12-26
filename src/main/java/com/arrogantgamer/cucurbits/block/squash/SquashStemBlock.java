@@ -1,13 +1,12 @@
 package com.arrogantgamer.cucurbits.block.squash;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nullable;
 
 import com.arrogantgamer.cucurbits.block.ModCropsBlock;
-import com.arrogantgamer.cucurbits.block.corecumber.CorecumberBlock;
+import com.arrogantgamer.cucurbits.tileEntity.SquashStemTileEntity;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,15 +15,14 @@ import net.minecraft.block.HorizontalBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.StemBlock;
 import net.minecraft.block.StemGrownBlock;
-import net.minecraft.block.Block.Properties;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.loot.LootContext;
@@ -35,7 +33,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SquashStemBlock extends StemBlock {
     public static Block.Properties properties = Block.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(0.0F).sound(SoundType.STEM);
 
-    private ResourceLocation oreTagId = new ResourceLocation("forge", "ores");
     protected final StemGrownBlock crop;
 
     public SquashStemBlock(StemGrownBlock p_i48318_1_, Properties properties) {
@@ -45,76 +42,112 @@ public class SquashStemBlock extends StemBlock {
     }
 
     @Override
-    public void tick(BlockState state, World worldIn, BlockPos pos, Random random) {
-	if (!worldIn.isAreaLoaded(pos, 1))
-	    return; // Forge: prevent loading unloaded chunks when checking neighbor's light
-	if (worldIn.getLightSubtracted(pos, 0) >= 9) {
-	    float f = ModCropsBlock.getGrowthChance(this, worldIn, pos);
-	    if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, random.nextInt((int) (25.0F / f) + 1) == 0)) {
-		int i = state.get(AGE);
-		if (i < 7) {
-		    worldIn.setBlockState(pos, state.with(AGE, Integer.valueOf(i + 1)), 2);
-		} else {
-		    BlockPos fuelpos = findFuel(worldIn, pos, random);
-
-		    Direction direction = Direction.Plane.HORIZONTAL.random(random);
-		    BlockPos blockpos = pos.offset(direction);
-		    BlockState soil = worldIn.getBlockState(blockpos.down());
-		    Block block = soil.getBlock();
-		    if (canFruit(worldIn, fuelpos, blockpos) && (soil.canSustainPlant(worldIn, blockpos.down(), Direction.UP, this) || block == Blocks.FARMLAND
-			    || block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.PODZOL || block == Blocks.GRASS_BLOCK)) {
-			this.createFruit(worldIn, blockpos, fuelpos);
-			worldIn.setBlockState(pos, this.crop.getAttachedStem().getDefaultState().with(HorizontalBlock.HORIZONTAL_FACING, direction));
-		    }
-		}
-		net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state);
-	    }
-
-	}
-    }
-
-    protected void createFruit(World worldIn, BlockPos blockpos, BlockPos fuelpos) {
-	// get the compressible item
-	List<ItemStack> products = consumeFuel(worldIn, fuelpos);
-
-	if (products.isEmpty()) {
-	    return;
-	}
-
-	if (worldIn.setBlockState(blockpos, this.crop.getDefaultState())) {
-	    SquashBlock fruit = (SquashBlock) worldIn.getBlockState(blockpos).getBlock();
-	    products.forEach((product) -> fruit.setContainedItem(worldIn, blockpos, product));
-	}
-    }
-
-    protected List<ItemStack> consumeFuel(World worldIn, BlockPos blockpos) {
-	BlockState potentialOre = worldIn.getBlockState(blockpos);
-
-	if (worldIn instanceof ServerWorld) {
-	    if (isOre(potentialOre)) {
-		LootContext.Builder builder = (new LootContext.Builder((ServerWorld) worldIn)).withRandom(worldIn.rand).withParameter(LootParameters.POSITION, blockpos)
-			.withParameter(LootParameters.TOOL, ItemStack.EMPTY);
-
-		List<ItemStack> drops = potentialOre.getDrops(builder);
-
-		worldIn.setBlockState(blockpos, Blocks.MOSSY_COBBLESTONE.getDefaultState());
-
-		return drops;
-	    }
-	}
-
-	return Collections.emptyList();
+    public boolean hasTileEntity(BlockState state) {
+	return true;
     }
 
     @Nullable
-    protected BlockPos findFuel(World worldIn, BlockPos blockpos, Random random) {
+    @Override
+    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+	return new SquashStemTileEntity();
+    }
+
+    private TileEntity getTileEntity(World worldIn, BlockPos pos) {
+	return worldIn.getTileEntity(pos);
+    }
+
+    @Override
+    public void tick(BlockState state, World worldIn, BlockPos stempos, Random random) {
+	if (!worldIn.isAreaLoaded(stempos, 1))
+	    return; // Forge: prevent loading unloaded chunks when checking neighbor's light
+	if (worldIn.getLightSubtracted(stempos, 0) >= 9) {
+	    float f = ModCropsBlock.getGrowthChance(this, worldIn, stempos);
+	    if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, stempos, state, random.nextInt((int) (25.0F / f) + 1) == 0)) {
+		int i = state.get(AGE);
+		if (i < 7) {
+		    worldIn.setBlockState(stempos, state.with(AGE, Integer.valueOf(i + 1)), 2);
+		} else {
+		    BlockPos fuelpos = findFuel(worldIn, stempos, random);
+
+		    Direction direction = Direction.Plane.HORIZONTAL.random(random);
+		    BlockPos targetpos = stempos.offset(direction);
+		    BlockState soil = worldIn.getBlockState(targetpos.down());
+		    Block block = soil.getBlock();
+
+		    if (canFruit(worldIn, fuelpos, targetpos) && (soil.canSustainPlant(worldIn, targetpos.down(), Direction.UP, this) || block == Blocks.FARMLAND
+			    || block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.PODZOL || block == Blocks.GRASS_BLOCK)) {
+
+			if (this.tryCreateFruit(worldIn, stempos, targetpos, fuelpos)) {
+			    worldIn.setBlockState(stempos, this.crop.getAttachedStem().getDefaultState().with(HorizontalBlock.HORIZONTAL_FACING, direction));
+			}
+		    }
+		}
+		net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, stempos, state);
+	    }
+
+	}
+    }
+
+    @Nullable
+    protected boolean tryCreateFruit(World worldIn, BlockPos stempos, BlockPos targetpos, BlockPos fuelpos) {
+	ItemStack compressed = consumeFuel(worldIn, stempos, fuelpos);
+
+	if (compressed.isEmpty()) {
+	    return false;
+	}
+
+	if (!worldIn.setBlockState(targetpos, this.crop.getDefaultState())) {
+	    return false;
+	}
+	
+	SquashBlock fruit = (SquashBlock) worldIn.getBlockState(targetpos).getBlock();
+	fruit.setContainedItem(worldIn, targetpos, compressed);
+
+	return true;
+    }
+
+    protected ItemStack consumeFuel(World worldIn, BlockPos stempos, BlockPos fuelpos) {
+	if (worldIn instanceof ServerWorld) {
+	    if (isFuel(worldIn, stempos, fuelpos)) {
+		BlockState potentialFuel = worldIn.getBlockState(fuelpos);
+		LootContext.Builder builder = (new LootContext.Builder((ServerWorld) worldIn)).withRandom(worldIn.rand).withParameter(LootParameters.POSITION, fuelpos)
+			.withParameter(LootParameters.TOOL, ItemStack.EMPTY);
+
+		List<ItemStack> drops = potentialFuel.getDrops(builder);
+
+		if (drops.isEmpty()) {
+		    return ItemStack.EMPTY;
+		}
+
+		ItemStack fuel = drops.get(0);
+
+		SquashStemTileEntity te = (SquashStemTileEntity) this.getTileEntity(worldIn, stempos);
+
+		ItemStack compressed = ItemStack.EMPTY;
+
+		if (te.insertFuel(worldIn, fuel)) {
+		    // if we id indeed consume the fuel, break it
+		    worldIn.setBlockState(fuelpos, Blocks.AIR.getDefaultState());
+		    // this was indeed fuel, now we can try to compress the fuel
+		    compressed = te.tryExtractFruit(worldIn);
+		}
+
+		return compressed;
+	    }
+	}
+
+	return ItemStack.EMPTY;
+    }
+
+    @Nullable
+    protected BlockPos findFuel(World worldIn, BlockPos stempos, Random random) {
 	BlockPos fuelpos = null;
 
 	for (int i = 0; i < 4; ++i) {
-	    fuelpos = blockpos.add(random.nextInt(3) - 1, random.nextInt(blockpos.getY()) - blockpos.getY() - 1, random.nextInt(3) - 1);
-	    BlockState potentialOre = worldIn.getBlockState(fuelpos);
+	    fuelpos = stempos.add(random.nextInt(3) - 1, 0, random.nextInt(3) - 1);
 
-	    if (isOre(potentialOre)) {
+	    // maybe also check for a non-cucurbit tile entity
+	    if (isFuel(worldIn, stempos, fuelpos)) {
 		break;
 	    }
 
@@ -124,13 +157,32 @@ public class SquashStemBlock extends StemBlock {
 	return fuelpos;
     }
 
-    private boolean isOre(BlockState potentialOre) {
-	return BlockTags.getCollection().getOrCreate(oreTagId).contains(potentialOre.getBlock());
+    private boolean isFuel(World worldIn, BlockPos stempos, BlockPos fuelpos) {
+	BlockState potentialFuel = worldIn.getBlockState(fuelpos);
+
+	if (potentialFuel.isAir(worldIn, fuelpos)) {
+	    return false;
+	}
+
+	LootContext.Builder builder = (new LootContext.Builder((ServerWorld) worldIn)).withRandom(worldIn.rand).withParameter(LootParameters.POSITION, fuelpos)
+		.withParameter(LootParameters.TOOL, ItemStack.EMPTY);
+
+	List<ItemStack> drops = potentialFuel.getDrops(builder);
+
+	if (drops.isEmpty()) {
+	    return false;
+	}
+
+	ItemStack fuel = drops.get(0);
+
+	SquashStemTileEntity te = (SquashStemTileEntity) this.getTileEntity(worldIn, stempos);
+
+	return te.isFuel(worldIn, fuel);
     }
 
-    protected boolean canFruit(World worldIn, @Nullable BlockPos fuelpos, BlockPos blockpos) {
+    protected boolean canFruit(World worldIn, @Nullable BlockPos fuelpos, BlockPos targetpos) {
 	// check that we did find fuel
-	return fuelpos != null && worldIn.getBlockState(blockpos).isAir(worldIn, blockpos) && isOre(worldIn.getBlockState(fuelpos));
+	return fuelpos != null && worldIn.getBlockState(targetpos).isAir(worldIn, targetpos) && fuelpos != null;
     }
 
     // I'm not sure that we need this...

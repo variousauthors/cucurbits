@@ -11,6 +11,8 @@ import com.arrogantgamer.cucurbits.block.squash.SquashBlock;
 import com.arrogantgamer.cucurbits.block.squash.SquashStemBlock;
 import com.arrogantgamer.cucurbits.item.LavamelonItem;
 import com.arrogantgamer.cucurbits.tileEntity.CorecumberTileEntity;
+import com.arrogantgamer.cucurbits.tileEntity.SquashStemTileEntity;
+import com.arrogantgamer.cucurbits.tileEntity.SquashTileEntity;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -64,9 +66,9 @@ public class ModEventSubscriber {
     @SubscribeEvent
     public static void onRegisterTileEntities(RegistryEvent.Register<TileEntityType<?>> event) {
 	System.out.println("Register");
-	event.getRegistry().register(TileEntityType.Builder.create(CorecumberTileEntity::new, ModBlocks.CORECUMBER).build(null).setRegistryName("corecumber")
-
-	);
+	event.getRegistry().register(TileEntityType.Builder.create(CorecumberTileEntity::new, ModBlocks.CORECUMBER).build(null).setRegistryName("corecumber"));
+	event.getRegistry().register(TileEntityType.Builder.create(SquashTileEntity::new, ModBlocks.SQUASH).build(null).setRegistryName("squash"));		
+	event.getRegistry().register(TileEntityType.Builder.create(SquashStemTileEntity::new, ModBlocks.SQUASH_STEM).build(null).setRegistryName("squash_stem"));
     }
 
     public static <T extends IForgeRegistryEntry<T>> T setup(final T entry, final String name) {

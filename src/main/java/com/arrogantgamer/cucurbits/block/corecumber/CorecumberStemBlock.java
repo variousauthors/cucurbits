@@ -91,17 +91,17 @@ public class CorecumberStemBlock extends StemBlock {
 	}
     }
 
-    protected List<ItemStack> consumeFuel(World worldIn, BlockPos blockpos) {
-	BlockState potentialOre = worldIn.getBlockState(blockpos);
+    protected List<ItemStack> consumeFuel(World worldIn, BlockPos fuelpos) {
+	BlockState potentialOre = worldIn.getBlockState(fuelpos);
 
 	if (worldIn instanceof ServerWorld) {
 	    if (isOre(potentialOre)) {
-		LootContext.Builder builder = (new LootContext.Builder((ServerWorld) worldIn)).withRandom(worldIn.rand).withParameter(LootParameters.POSITION, blockpos)
+		LootContext.Builder builder = (new LootContext.Builder((ServerWorld) worldIn)).withRandom(worldIn.rand).withParameter(LootParameters.POSITION, fuelpos)
 			.withParameter(LootParameters.TOOL, ItemStack.EMPTY);
 
 		List<ItemStack> drops = potentialOre.getDrops(builder);
 
-		worldIn.setBlockState(blockpos, Blocks.MOSSY_COBBLESTONE.getDefaultState());
+		worldIn.setBlockState(fuelpos, Blocks.MOSSY_COBBLESTONE.getDefaultState());
 
 		return drops;
 	    }

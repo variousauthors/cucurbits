@@ -7,7 +7,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 
 public class CorecumberTileEntity extends TileEntity {
-    private ItemStack containedItem;
+    private ItemStack containedItem = ItemStack.EMPTY;
 
     public CorecumberTileEntity() {
 	super(ModBlocks.CORECUMBER_TILE);
@@ -20,7 +20,7 @@ public class CorecumberTileEntity extends TileEntity {
     
     public ItemStack extractContainedItem() {
 	ItemStack item = this.containedItem;
-	this.containedItem = null;
+	this.containedItem = ItemStack.EMPTY;
 	this.markDirty();	
 
         return item;
