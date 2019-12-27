@@ -84,7 +84,7 @@ public class CorecumberStemBlock extends StemBlock {
 	if (products.isEmpty()) {
 	    return;
 	}
-
+	
 	if (worldIn.setBlockState(blockpos, this.crop.getDefaultState())) {
 	    CorecumberBlock fruit = (CorecumberBlock) worldIn.getBlockState(blockpos).getBlock();
 	    products.forEach((product) -> fruit.setContainedItem(worldIn, blockpos, product));

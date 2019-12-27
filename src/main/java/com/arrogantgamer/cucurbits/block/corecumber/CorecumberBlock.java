@@ -1,5 +1,7 @@
 package com.arrogantgamer.cucurbits.block.corecumber;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import com.arrogantgamer.cucurbits.ModBlocks;
@@ -16,10 +18,15 @@ import net.minecraft.block.material.MaterialColor;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.ShulkerBoxTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.loot.LootContext;
+import net.minecraft.world.storage.loot.LootParameters;
+import net.minecraft.world.storage.loot.LootContext.Builder;
 
 public class CorecumberBlock extends StemGrownBlock {
     public static Block.Properties properties = Block.Properties.create(Material.GOURD, MaterialColor.LIME).hardnessAndResistance(1.0F).sound(SoundType.WOOD);
@@ -44,27 +51,22 @@ public class CorecumberBlock extends StemGrownBlock {
     }
 
     @Override
-    public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player) {
-	this.spawnContainedItems(worldIn, pos);
-	
-	super.onBlockHarvested(worldIn, pos, state, player);
+    public List<ItemStack> getDrops(BlockState state, Builder builder) {
+	List<ItemStack> drops = super.getDrops(state, builder);
+
+	TileEntity te = builder.get(LootParameters.BLOCK_ENTITY);
+	if (te instanceof CorecumberTileEntity) {
+	    ItemStack item = ((CorecumberTileEntity) te).getContainedItem();
+
+	    drops.add(item);	    
+	}
+
+	return drops;
     }
     
-    protected void spawnContainedItems (World worldIn, BlockPos pos) {
-	TileEntity te = this.getTileEntity(worldIn, pos);
-
-	if (te instanceof CorecumberTileEntity) {
-	    ItemStack item = ((CorecumberTileEntity) te).extractContainedItem();
-	    
-	    if (!item.isEmpty()) {
-		InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), item);		
-	    }
-	}
-    }
-
     public void setContainedItem(World worldIn, BlockPos pos, ItemStack item) {
 	TileEntity te = this.getTileEntity(worldIn, pos);
-	
+
 	if (te instanceof CorecumberTileEntity) {
 	    ((CorecumberTileEntity) te).setContainedItem(item);
 	}

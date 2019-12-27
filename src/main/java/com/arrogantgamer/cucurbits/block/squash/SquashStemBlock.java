@@ -109,27 +109,23 @@ public class SquashStemBlock extends StemBlock {
     protected ItemStack consumeFuel(World worldIn, BlockPos stempos, BlockPos fuelpos) {
 	if (worldIn instanceof ServerWorld) {
 	    if (isFuel(worldIn, stempos, fuelpos)) {
-		BlockState potentialFuel = worldIn.getBlockState(fuelpos);
-		LootContext.Builder builder = (new LootContext.Builder((ServerWorld) worldIn)).withRandom(worldIn.rand).withParameter(LootParameters.POSITION, fuelpos)
-			.withParameter(LootParameters.TOOL, ItemStack.EMPTY);
-
-		List<ItemStack> drops = potentialFuel.getDrops(builder);
-
-		if (drops.isEmpty()) {
-		    return ItemStack.EMPTY;
-		}
-
-		ItemStack fuel = drops.get(0);
-
-		SquashStemTileEntity te = (SquashStemTileEntity) this.getTileEntity(worldIn, stempos);
+		
+		List<ItemStack> drops = this.getPotentialFuel(worldIn, fuelpos);
 
 		ItemStack compressed = ItemStack.EMPTY;
+		
+		for (ItemStack fuel : drops) {
+		    SquashStemTileEntity te = (SquashStemTileEntity) this.getTileEntity(worldIn, stempos);
 
-		if (te.insertFuel(worldIn, fuel)) {
-		    // if we id indeed consume the fuel, break it
-		    worldIn.setBlockState(fuelpos, Blocks.AIR.getDefaultState());
-		    // this was indeed fuel, now we can try to compress the fuel
-		    compressed = te.tryExtractFruit(worldIn);
+		    // for each fuel candidate, try inserting it into the stem
+		    if (te.insertFuel(worldIn, fuel)) {
+			// if we id indeed consume the fuel, break the block
+			worldIn.setBlockState(fuelpos, Blocks.AIR.getDefaultState());
+			// this was indeed fuel, now we can try to compress the fuel
+			compressed = te.tryExtractFruit(worldIn);
+			// we only want to do this successfully once
+			break;
+		    }		    
 		}
 
 		return compressed;
@@ -137,6 +133,20 @@ public class SquashStemBlock extends StemBlock {
 	}
 
 	return ItemStack.EMPTY;
+    }
+    
+    private List<ItemStack> getPotentialFuel (World worldIn, BlockPos fuelpos) {
+	BlockState potentialFuel = worldIn.getBlockState(fuelpos);
+	LootContext.Builder builder = (new LootContext.Builder((ServerWorld) worldIn))
+		.withRandom(worldIn.rand)
+		.withParameter(LootParameters.POSITION, fuelpos)
+		.withParameter(LootParameters.TOOL, ItemStack.EMPTY);
+	
+	if (potentialFuel.hasTileEntity()) {
+	    builder.withParameter(LootParameters.BLOCK_ENTITY, worldIn.getTileEntity(fuelpos));
+	}
+
+	return potentialFuel.getDrops(builder);
     }
 
     @Nullable
@@ -163,21 +173,21 @@ public class SquashStemBlock extends StemBlock {
 	if (potentialFuel.isAir(worldIn, fuelpos)) {
 	    return false;
 	}
-
-	LootContext.Builder builder = (new LootContext.Builder((ServerWorld) worldIn)).withRandom(worldIn.rand).withParameter(LootParameters.POSITION, fuelpos)
-		.withParameter(LootParameters.TOOL, ItemStack.EMPTY);
-
-	List<ItemStack> drops = potentialFuel.getDrops(builder);
+	
+	List<ItemStack> drops = this.getPotentialFuel(worldIn, fuelpos);
 
 	if (drops.isEmpty()) {
 	    return false;
 	}
 
-	ItemStack fuel = drops.get(0);
+	boolean result = false;
+	SquashStemTileEntity te = (SquashStemTileEntity) this.getTileEntity(worldIn, stempos);	
+	
+	for (ItemStack fuel : drops) {
+	    result = result || te.isFuel(worldIn, fuel);	    
+	}
 
-	SquashStemTileEntity te = (SquashStemTileEntity) this.getTileEntity(worldIn, stempos);
-
-	return te.isFuel(worldIn, fuel);
+	return result;
     }
 
     protected boolean canFruit(World worldIn, @Nullable BlockPos fuelpos, BlockPos targetpos) {
