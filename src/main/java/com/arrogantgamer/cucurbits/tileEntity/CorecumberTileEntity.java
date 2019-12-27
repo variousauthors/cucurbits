@@ -18,23 +18,21 @@ public class CorecumberTileEntity extends TileEntity {
 	this.markDirty();
     }
     
-    public ItemStack extractContainedItem() {
-	ItemStack item = this.containedItem;
-	this.containedItem = ItemStack.EMPTY;
-	this.markDirty();	
-
-        return item;
-    }    
-    
+    public ItemStack getContainedItem () {
+	return this.containedItem.copy();
+    }
+        
     @Override
     public void read(CompoundNBT compound) {
-	this.containedItem = ItemStack.read(compound);
+	this.containedItem = ItemStack.read(compound.getCompound("inv"));
+	
 	super.read(compound);
     }
 
     @Override
     public CompoundNBT write(CompoundNBT compound) {
-	this.containedItem.write(compound);
+	CompoundNBT inv = this.containedItem.serializeNBT();
+	compound.put("inv", inv);
 
 	return super.write(compound);
     }
