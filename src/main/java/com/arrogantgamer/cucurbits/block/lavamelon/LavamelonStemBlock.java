@@ -64,8 +64,10 @@ public class LavamelonStemBlock extends StemBlock {
 
     @Override
     public void tick(BlockState state, World worldIn, BlockPos pos, Random random) {
-	if (!worldIn.isAreaLoaded(pos, 1))
-	    return; // Forge: prevent loading unloaded chunks when checking neighbor's light
+	if (!worldIn.isAreaLoaded(pos, 1)) {
+	    return; // Forge: prevent loading unloaded chunks when checking neighbor's light	    
+	}
+
 	if (worldIn.getLightSubtracted(pos, 0) >= 9) {
 	    float f = ModCropsBlock.getGrowthChance(this, worldIn, pos);
 	    if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, random.nextInt((int) (25.0F / f) + 1) == 0)) {
@@ -74,36 +76,59 @@ public class LavamelonStemBlock extends StemBlock {
 		    worldIn.setBlockState(pos, state.with(AGE, Integer.valueOf(i + 1)), 2);
 		} else {
 		    BlockPos fuelpos = findFuel(worldIn, pos, random);
-
 		    Direction direction = Direction.Plane.HORIZONTAL.random(random);
-		    BlockPos blockpos = pos.offset(direction);
-		    BlockState soil = worldIn.getBlockState(blockpos.down());
-		    Block block = soil.getBlock();
-		    if (canFruit(worldIn, fuelpos, blockpos) && (soil.canSustainPlant(worldIn, blockpos.down(), Direction.UP, this) || block == Blocks.FARMLAND
-			    || block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.PODZOL || block == Blocks.GRASS_BLOCK)) {
-			consumeFuel(worldIn, fuelpos);
-			worldIn.setBlockState(blockpos, this.crop.getDefaultState());
-			worldIn.setBlockState(pos, this.crop.getAttachedStem().getDefaultState().with(HorizontalBlock.HORIZONTAL_FACING, direction));
+		    BlockPos fruitPos = pos.offset(direction);
+
+		    if (canFruit(worldIn, fuelpos, fruitPos)) {
+			createFruit(worldIn, fruitPos, fuelpos);
+			attachStem(worldIn, pos, direction);
 		    }
 		}
+		
 		net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state);
 	    }
-
 	}
     }
+    
+    private boolean isVanillaSoil(BlockState soil) {
+	Block block = soil.getBlock();
 
+	return block == Blocks.FARMLAND || block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.PODZOL || block == Blocks.GRASS_BLOCK;
+    }
+    
+    private boolean isSuitableForFruit (World worldIn, BlockPos fruitPos) {
+	BlockState soil = worldIn.getBlockState(fruitPos.down());
+
+	return soil.canSustainPlant(worldIn, fruitPos.down(), Direction.UP, this) || isVanillaSoil(soil);
+    }
+    
+    protected void attachStem (World worldIn, BlockPos pos, Direction direction) {
+	worldIn.setBlockState(pos, this.crop.getAttachedStem().getDefaultState().with(HorizontalBlock.HORIZONTAL_FACING, direction));
+    }    
+
+    protected void createFruit(World worldIn, BlockPos blockpos, BlockPos fuelpos) {
+	consumeFuel(worldIn, fuelpos);
+
+	worldIn.setBlockState(blockpos, this.crop.getDefaultState());
+    }    
+    
     protected void consumeFuel(World worldIn, BlockPos blockpos) {
 	worldIn.setBlockState(blockpos, Blocks.AIR.getDefaultState());
     }
 
+    private BlockPos getRandomPosition (World worldIn, BlockPos blockpos, Random random) {
+	return blockpos.add(random.nextInt(3) - 1, random.nextInt(5) - 5, random.nextInt(3) - 1);
+    }
+    
     @Nullable
     protected BlockPos findFuel(World worldIn, BlockPos blockpos, Random random) {
 	BlockPos fuelpos = null;
 
 	for (int i = 0; i < 4; ++i) {
-	    fuelpos = blockpos.add(random.nextInt(3) - 1, random.nextInt(5) - 5, random.nextInt(3) - 1);
+	    fuelpos = this.getRandomPosition(worldIn, blockpos, random);
+	    BlockState potentialfuel = worldIn.getBlockState(fuelpos);
 
-	    if (worldIn.getBlockState(fuelpos).getMaterial() == Material.LAVA) {
+	    if (isFuel(potentialfuel)) {
 		break;
 	    }
 
@@ -112,9 +137,17 @@ public class LavamelonStemBlock extends StemBlock {
 
 	return fuelpos;
     }
+    
+    protected boolean isFuel (BlockState potentialFuel) {
+	return potentialFuel.getBlock() == Blocks.LAVA
+		&& potentialFuel.getBlock().getFluidState(potentialFuel).isSource();
+    }
 
-    protected boolean canFruit(World worldIn, @Nullable BlockPos fuelpos, BlockPos blockpos) {
-	return fuelpos != null && worldIn.getBlockState(blockpos).isAir(worldIn, blockpos) && worldIn.getBlockState(fuelpos).getMaterial() == Material.LAVA;
+    protected boolean canFruit(World worldIn, @Nullable BlockPos fuelpos, BlockPos targetPos) {
+	return fuelpos != null 
+		&& worldIn.getBlockState(targetPos).isAir(worldIn, targetPos) 
+		&& this.isFuel(worldIn.getBlockState(fuelpos))
+		&& this.isSuitableForFruit(worldIn, targetPos);
     }
 
     @Nullable

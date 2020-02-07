@@ -34,11 +34,9 @@ import net.minecraftforge.fml.common.Mod;
  *  - stems that break blocks for fuel should skip tile entities (except other gourds)
  *    - needs a tag called "cucurbits"
  *  - stems need drops too
-
  *      
  * [] Lavamelon
  * [] Corecumber
- *    - investigate saving the tile entity across silk-touch collects... (seems unfeasible)
  * 
  * [] Squash
  *    - it checks the drops of a block nearby
@@ -62,12 +60,8 @@ import net.minecraftforge.fml.common.Mod;
  *      - if it has appropriate fertility points, it puts nearby animals into love mode
  *        (eg if it has carrot points, it puts pigs into love mode, if it has wheat it puts cows into love mode)
  *      - it only works for animals that are put into love mode by crops
+ *      
  * [] Slime Detecting Gourd
- *    - it needs a use beyond just detecting slimes... 
- *      but it shouldn't be a source of slime
- *    - make it bouncy like a slime block, but not sticky
- *    - make it generate mana when something bounces off of it
-
  * 
  * */
 @Mod(Cucurbits.MODID)

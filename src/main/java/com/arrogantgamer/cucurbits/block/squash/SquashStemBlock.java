@@ -68,15 +68,10 @@ public class SquashStemBlock extends StemBlock {
 		    worldIn.setBlockState(stempos, state.with(AGE, Integer.valueOf(i + 1)), 2);
 		} else {
 		    BlockPos fuelpos = findFuel(worldIn, stempos, random);
-
 		    Direction direction = Direction.Plane.HORIZONTAL.random(random);
 		    BlockPos targetpos = stempos.offset(direction);
-		    BlockState soil = worldIn.getBlockState(targetpos.down());
-		    Block block = soil.getBlock();
 
-		    if (canFruit(worldIn, fuelpos, targetpos) && (soil.canSustainPlant(worldIn, targetpos.down(), Direction.UP, this) || block == Blocks.FARMLAND
-			    || block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.PODZOL || block == Blocks.GRASS_BLOCK)) {
-
+		    if (canFruit(worldIn, fuelpos, targetpos)) {
 			if (this.tryCreateFruit(worldIn, stempos, targetpos, fuelpos)) {
 			    worldIn.setBlockState(stempos, this.crop.getAttachedStem().getDefaultState().with(HorizontalBlock.HORIZONTAL_FACING, direction));
 			}
@@ -88,6 +83,22 @@ public class SquashStemBlock extends StemBlock {
 	}
     }
 
+    private boolean isVanillaSoil(BlockState soil) {
+	Block block = soil.getBlock();
+
+	return block == Blocks.FARMLAND || block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.PODZOL || block == Blocks.GRASS_BLOCK;
+    }
+    
+    private boolean isSuitableForFruit (World worldIn, BlockPos fruitPos) {
+	BlockState soil = worldIn.getBlockState(fruitPos.down());
+
+	return soil.canSustainPlant(worldIn, fruitPos.down(), Direction.UP, this) || isVanillaSoil(soil);
+    }
+    
+    protected void attachStem (World worldIn, BlockPos pos, Direction direction) {
+	worldIn.setBlockState(pos, this.crop.getAttachedStem().getDefaultState().with(HorizontalBlock.HORIZONTAL_FACING, direction));
+    }    
+    
     @Nullable
     protected boolean tryCreateFruit(World worldIn, BlockPos stempos, BlockPos targetpos, BlockPos fuelpos) {
 	ItemStack compressed = consumeFuel(worldIn, stempos, fuelpos);
@@ -192,7 +203,9 @@ public class SquashStemBlock extends StemBlock {
 
     protected boolean canFruit(World worldIn, @Nullable BlockPos fuelpos, BlockPos targetpos) {
 	// check that we did find fuel
-	return fuelpos != null && worldIn.getBlockState(targetpos).isAir(worldIn, targetpos) && fuelpos != null;
+	return fuelpos != null 
+		&& worldIn.getBlockState(targetpos).isAir(worldIn, targetpos) 
+		&& this.isSuitableForFruit(worldIn, targetpos);
     }
 
     // I'm not sure that we need this...

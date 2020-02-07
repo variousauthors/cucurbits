@@ -49,10 +49,13 @@ public class CorecumberStemBlock extends StemBlock {
 	this.setDefaultState(this.stateContainer.getBaseState().with(AGE, Integer.valueOf(0)));
     }
 
+
     @Override
     public void tick(BlockState state, World worldIn, BlockPos pos, Random random) {
-	if (!worldIn.isAreaLoaded(pos, 1))
-	    return; // Forge: prevent loading unloaded chunks when checking neighbor's light
+	if (!worldIn.isAreaLoaded(pos, 1)) {
+	    return; // Forge: prevent loading unloaded chunks when checking neighbor's light	    
+	}
+
 	if (worldIn.getLightSubtracted(pos, 0) >= 9) {
 	    float f = ModCropsBlock.getGrowthChance(this, worldIn, pos);
 	    if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, random.nextInt((int) (25.0F / f) + 1) == 0)) {
@@ -61,23 +64,37 @@ public class CorecumberStemBlock extends StemBlock {
 		    worldIn.setBlockState(pos, state.with(AGE, Integer.valueOf(i + 1)), 2);
 		} else {
 		    BlockPos fuelpos = findFuel(worldIn, pos, random);
-
 		    Direction direction = Direction.Plane.HORIZONTAL.random(random);
-		    BlockPos blockpos = pos.offset(direction);
-		    BlockState soil = worldIn.getBlockState(blockpos.down());
-		    Block block = soil.getBlock();
-		    if (canFruit(worldIn, fuelpos, blockpos) && (soil.canSustainPlant(worldIn, blockpos.down(), Direction.UP, this) || block == Blocks.FARMLAND
-			    || block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.PODZOL || block == Blocks.GRASS_BLOCK)) {
-			this.createFruit(worldIn, blockpos, fuelpos);
-			worldIn.setBlockState(pos, this.crop.getAttachedStem().getDefaultState().with(HorizontalBlock.HORIZONTAL_FACING, direction));
+		    BlockPos fruitPos = pos.offset(direction);
+		    
+		    if (canFruit(worldIn, fuelpos, fruitPos)) {
+			createFruit(worldIn, fruitPos, fuelpos);
+			attachStem(worldIn, pos, direction);
 		    }
 		}
+		
 		net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state);
 	    }
 
 	}
     }
+    
+    private boolean isVanillaSoil(BlockState soil) {
+	Block block = soil.getBlock();
 
+	return block == Blocks.FARMLAND || block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.PODZOL || block == Blocks.GRASS_BLOCK;
+    }
+    
+    private boolean isSuitableForFruit (World worldIn, BlockPos fruitPos) {
+	BlockState soil = worldIn.getBlockState(fruitPos.down());
+
+	return soil.canSustainPlant(worldIn, fruitPos.down(), Direction.UP, this) || isVanillaSoil(soil);
+    }
+    
+    protected void attachStem (World worldIn, BlockPos pos, Direction direction) {
+	worldIn.setBlockState(pos, this.crop.getAttachedStem().getDefaultState().with(HorizontalBlock.HORIZONTAL_FACING, direction));
+    }
+    
     protected void createFruit(World worldIn, BlockPos blockpos, BlockPos fuelpos) {
 	List<ItemStack> products = consumeFuel(worldIn, fuelpos);
 
@@ -95,7 +112,7 @@ public class CorecumberStemBlock extends StemBlock {
 	BlockState potentialOre = worldIn.getBlockState(fuelpos);
 
 	if (worldIn instanceof ServerWorld) {
-	    if (isOre(potentialOre)) {
+	    if (isFuel(potentialOre)) {
 		LootContext.Builder builder = (new LootContext.Builder((ServerWorld) worldIn)).withRandom(worldIn.rand).withParameter(LootParameters.POSITION, fuelpos)
 			.withParameter(LootParameters.TOOL, ItemStack.EMPTY);
 
@@ -110,15 +127,19 @@ public class CorecumberStemBlock extends StemBlock {
 	return Collections.emptyList();
     }
 
+    private BlockPos getRandomPosition (World worldIn, BlockPos blockpos, Random random) {
+	return blockpos.add(random.nextInt(3) - 1, random.nextInt(blockpos.getY()) - blockpos.getY() - 1, random.nextInt(3) - 1);
+    }    
+    
     @Nullable
     protected BlockPos findFuel(World worldIn, BlockPos blockpos, Random random) {
 	BlockPos fuelpos = null;
 
 	for (int i = 0; i < 4; ++i) {
-	    fuelpos = blockpos.add(random.nextInt(3) - 1, random.nextInt(blockpos.getY()) - blockpos.getY() - 1, random.nextInt(3) - 1);
-	    BlockState potentialOre = worldIn.getBlockState(fuelpos);
+	    fuelpos = this.getRandomPosition(worldIn, blockpos, random);
+	    BlockState potentialFuel = worldIn.getBlockState(fuelpos);
 
-	    if (isOre(potentialOre)) {
+	    if (isFuel(potentialFuel)) {
 		break;
 	    }
 
@@ -128,13 +149,22 @@ public class CorecumberStemBlock extends StemBlock {
 	return fuelpos;
     }
 
-    private boolean isOre(BlockState potentialOre) {
+    private boolean isFuel(BlockState potentialOre) {
 	return BlockTags.getCollection().getOrCreate(oreTagId).contains(potentialOre.getBlock());
     }
 
-    protected boolean canFruit(World worldIn, @Nullable BlockPos fuelpos, BlockPos blockpos) {
+    /** runs the checklist:
+     * [] is the target empty
+     * [] did we find fuel
+     * [] is the fuel what we expected it to be
+     * [] is the target a suitable location for fruit
+     * */
+    protected boolean canFruit(World worldIn, @Nullable BlockPos fuelpos, BlockPos targetPos) {
 	// check that we did find fuel
-	return fuelpos != null && worldIn.getBlockState(blockpos).isAir(worldIn, blockpos) && isOre(worldIn.getBlockState(fuelpos));
+	return fuelpos != null 
+		&& worldIn.getBlockState(targetPos).isAir(worldIn, targetPos) 
+		&& isFuel(worldIn.getBlockState(fuelpos))
+		&& this.isSuitableForFruit(worldIn, targetPos);
     }
 
     // I'm not sure that we need this...
