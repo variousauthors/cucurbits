@@ -1,7 +1,0 @@
-{
-    "parent": "minecraft:block/cube_column",
-    "textures": {
-        "end": "cucurbits:block/lavamelon_top",
-        "side": "cucurbits:block/lavamelon_side"
-    }
-}

@@ -1,7 +1,0 @@
-{
-    "parent": "minecraft:block/cube_column",
-    "textures": {
-        "end": "cucurbits:block/corecumber_top",
-        "side": "cucurbits:block/corecumber_side"
-    }
-}
