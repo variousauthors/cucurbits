@@ -1,5 +1,6 @@
 package com.arrogantgamer.cucurbits;
 
+import com.arrogantgamer.cucurbits.init.ModBlocks;
 import com.arrogantgamer.cucurbits.init.ModItems;
 
 import net.minecraftforge.fml.common.Mod;
@@ -18,6 +19,7 @@ public class Cucurbits {
     public void preInit(FMLPreInitializationEvent event) {
 	System.out.println(Constants.MODID + ":preInit");
 	ModItems.init();
+	ModBlocks.init();
     }
 
     @EventHandler

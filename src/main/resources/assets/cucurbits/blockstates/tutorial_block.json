@@ -1,0 +1,7 @@
+{
+    "variants": {
+        "normal": [
+            { "model": "cucurbits:tutorial_block" }
+        ]
+    }
+}
