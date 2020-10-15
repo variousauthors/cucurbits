@@ -1,0 +1,16 @@
+[
+{
+  "modid": "cucurbits",
+  "name": "Cucurbits",
+  "description": "Slow tech for curious farmers",
+  "version": "0.0.1",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["arrogantgamer"],
+  "credits": "Suppergerrie2's tutorial and the internet!",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
