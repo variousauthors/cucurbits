@@ -1,5 +1,7 @@
 package com.arrogantgamer.cucurbits;
 
+import com.arrogantgamer.cucurbits.init.ModItems;
+
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -15,6 +17,7 @@ public class Cucurbits {
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
 	System.out.println(Constants.MODID + ":preInit");
+	ModItems.init();
     }
 
     @EventHandler
