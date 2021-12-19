@@ -1,0 +1,12 @@
+{
+  "forge_marker": 1,
+  "variants": {
+    "normal": {
+      "model": "cucurbits:pedestal"
+    },
+    "inventory": {
+      "model": "cucurbits:pedestal",
+      "transform": "forge:default-block"
+    }
+  }
+}
