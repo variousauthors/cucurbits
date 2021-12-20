@@ -6,7 +6,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import variousauthors.scaffold.block.BlockBase;
+import variousauthors.scaffold.item.ItemBase;
 
 import java.util.Random;
 
@@ -15,14 +17,6 @@ public class BlockLavamelon extends BlockBase {
     {
         super(Material.GOURD, "lavamelon", MapColor.LIME);
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
-    }
-
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
-    public Item getItemDropped(IBlockState state, Random rand, int fortune)
-    {
-        return Items.MELON;
     }
 
     /**
@@ -39,5 +33,10 @@ public class BlockLavamelon extends BlockBase {
     public int quantityDroppedWithBonus(int fortune, Random random)
     {
         return Math.min(9, this.quantityDropped(random) + random.nextInt(1 + fortune));
+    }
+
+    public Item createItemBlock() {
+        return new ItemBase("lavamelon")
+                .setBurnTime(1000);
     }
 }

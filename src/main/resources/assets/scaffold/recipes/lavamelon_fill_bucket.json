@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:bucket"
+    },
+    {
+      "item": "scaffold:lavamelon"
+    }
+  ],
+  "result": {
+    "item": "minecraft:lava_bucket"
+  }
+}
