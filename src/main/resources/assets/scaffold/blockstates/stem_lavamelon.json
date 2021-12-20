@@ -24,11 +24,10 @@
         "model": "scaffold:stem_lavamelon_growth6"
       },
       "7": {
-        "model": "scaffold:stem_lavamelon_growth7"
       }
     },
     "facing": {
-      "up": {},
+      "up": { "model": "scaffold:stem_lavamelon_growth7" },
       "west": { "model": "scaffold:stem_lavamelon_fruit" },
       "east": { "model": "scaffold:stem_lavamelon_fruit", "y": 180 },
       "north": { "model": "scaffold:stem_lavamelon_fruit", "y": 90 },
