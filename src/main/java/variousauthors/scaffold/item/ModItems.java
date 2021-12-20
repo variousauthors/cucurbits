@@ -4,12 +4,15 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 import variousauthors.scaffold.Scaffold;
+import variousauthors.scaffold.block.lavamelon.ItemLavamelonSeed;
 import variousauthors.scaffold.item.tool.*;
 
 public class ModItems {
     public static ItemOre ingotCopper = new ItemOre("ingot_copper", "ingotCopper");
     public static ItemCornSeed cornSeed = new ItemCornSeed();
     public static ItemCorn corn = new ItemCorn();
+
+    public static ItemLavamelonSeed lavamelonSeed = new ItemLavamelonSeed();
 
     public static ItemSword copperSword = new ItemSword(Scaffold.copperToolMaterial, "copper_sword");
     public static ItemPickaxe copperPickaxe = new ItemPickaxe(Scaffold.copperToolMaterial, "copper_pickaxe");
@@ -35,7 +38,8 @@ public class ModItems {
                 copperHelmet,
                 copperChestplate,
                 copperLeggings,
-                copperBoots
+                copperBoots,
+                lavamelonSeed
         );
     }
 
@@ -52,5 +56,6 @@ public class ModItems {
         copperChestplate.registerItemModel();
         copperLeggings.registerItemModel();
         copperBoots.registerItemModel();
+        lavamelonSeed.registerItemModel();
     }
 }
