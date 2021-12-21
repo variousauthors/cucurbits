@@ -1,5 +1,6 @@
 package variousauthors.scaffold.block.lavamelon;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -7,6 +8,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import variousauthors.scaffold.block.BlockBase;
 import variousauthors.scaffold.item.ItemBase;
 
@@ -35,8 +37,18 @@ public class BlockLavamelon extends BlockBase {
         return Math.min(9, this.quantityDropped(random) + random.nextInt(1 + fortune));
     }
 
+    class ItemBlockLavamelon extends ItemBlock {
+        public ItemBlockLavamelon(Block block) {
+            super(block);
+        }
+
+        @Override
+        public int getItemBurnTime(ItemStack itemStack) {
+            return 20000;
+        }
+    }
+
     public Item createItemBlock() {
-        return new ItemBase("lavamelon")
-                .setBurnTime(1000);
+        return new ItemBlockLavamelon(this).setRegistryName(getRegistryName());
     }
 }
