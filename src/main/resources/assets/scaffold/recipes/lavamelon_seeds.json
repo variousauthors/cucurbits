@@ -1,0 +1,15 @@
+{
+  "type": "crafting_shaped",
+  "pattern": [
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "scaffold:lavamelon"
+    }
+  },
+  "result": {
+    "item": "scaffold:lavamelon_seeds",
+    "count": 4
+  }
+}
