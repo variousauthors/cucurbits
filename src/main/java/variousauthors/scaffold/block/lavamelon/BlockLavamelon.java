@@ -21,22 +21,6 @@ public class BlockLavamelon extends BlockBase {
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
-    /**
-     * Returns the quantity of items to drop on block destruction.
-     */
-    public int quantityDropped(Random random)
-    {
-        return 3 + random.nextInt(5);
-    }
-
-    /**
-     * Get the quantity dropped based on the given fortune level
-     */
-    public int quantityDroppedWithBonus(int fortune, Random random)
-    {
-        return Math.min(9, this.quantityDropped(random) + random.nextInt(1 + fortune));
-    }
-
     class ItemBlockLavamelon extends ItemBlock {
         public ItemBlockLavamelon(Block block) {
             super(block);

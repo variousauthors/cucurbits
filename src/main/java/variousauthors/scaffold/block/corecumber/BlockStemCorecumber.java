@@ -1,11 +1,6 @@
-package variousauthors.scaffold.block.lavamelon;
-
-import java.util.Iterator;
-import java.util.Random;
-import javax.annotation.Nullable;
+package variousauthors.scaffold.block.corecumber;
 
 import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyInteger;
@@ -16,24 +11,33 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Tuple;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import sun.lwawt.macosx.CPrinterDevice;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.oredict.OreDictionary;
 import variousauthors.scaffold.Scaffold;
 
-public class BlockStemLavamelon extends BlockBush implements IGrowable
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+
+public class BlockStemCorecumber extends BlockBush implements IGrowable
 {
     public static final PropertyInteger AGE = PropertyInteger.create("age", 0, 7);
     public static final PropertyDirection FACING = BlockTorch.FACING;
     private final Block crop;
     protected static final AxisAlignedBB[] STEM_AABB = new AxisAlignedBB[] {new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 0.125D, 0.625D), new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 0.25D, 0.625D), new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 0.375D, 0.625D), new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 0.5D, 0.625D), new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 0.625D, 0.625D), new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 0.75D, 0.625D), new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 0.875D, 0.625D), new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 1.0D, 0.625D)};
 
-    public BlockStemLavamelon(Block crop, String name)
+    public BlockStemCorecumber(Block crop, String name)
     {
         setUnlocalizedName(name);
         setRegistryName(name);
@@ -93,7 +97,7 @@ public class BlockStemLavamelon extends BlockBush implements IGrowable
                 float f1 = 0.0F;
                 IBlockState iblockstate = worldIn.getBlockState(blockpos.add(i, 0, j));
 
-                if (iblockstate.getBlock().canSustainPlant(iblockstate, worldIn, blockpos.add(i, 0, j), net.minecraft.util.EnumFacing.UP, (net.minecraftforge.common.IPlantable)blockIn))
+                if (iblockstate.getBlock().canSustainPlant(iblockstate, worldIn, blockpos.add(i, 0, j), EnumFacing.UP, (net.minecraftforge.common.IPlantable)blockIn))
                 {
                     f1 = 1.0F;
 
@@ -173,8 +177,24 @@ public class BlockStemLavamelon extends BlockBush implements IGrowable
                         BlockPos fuelPos = findFuelBlockInWorld(worldIn, pos);
 
                         if (fuelPos != null) {
-                            worldIn.setBlockState(fuelPos, Blocks.AIR.getDefaultState());
-                            worldIn.setBlockState(pos, this.crop.getDefaultState());
+                            IBlockState fuelState = worldIn.getBlockState(fuelPos);
+                            NonNullList<ItemStack> drops = NonNullList.create();
+                            fuelState.getBlock().getDrops(drops, worldIn, fuelPos, fuelState, 0);
+                            System.out.println("drops: " + drops);
+
+                            if (!drops.isEmpty()) {
+                                /** @TODO this should use "porous stone" so that we can find them later */
+                                worldIn.setBlockState(fuelPos, Blocks.COBBLESTONE.getDefaultState());
+                                worldIn.setBlockState(pos, this.crop.getDefaultState());
+                                TileEntity te = worldIn.getTileEntity(pos);
+
+                                if (te instanceof TileEntityCorecumber) {
+                                    IItemHandler itemHandler = ((TileEntityCorecumber) te).getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
+                                    for (ItemStack drop : drops) {
+                                        itemHandler.insertItem(0, drop, false);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -185,23 +205,27 @@ public class BlockStemLavamelon extends BlockBush implements IGrowable
 
     @Nullable
     private BlockPos findFuelBlockInWorld(World worldIn, BlockPos stemPos) {
-        /** right now it scans the whole box,
-         * but I would rather it randomly check a few
-         * blocks per tick */
-        BlockPos from = stemPos.west().north().down(1);
-        BlockPos to = stemPos.east().south().down(4);
-
-        Iterator<BlockPos> neighbourhood = BlockPos.getAllInBox(from, to).iterator();
+        /** get 16 random positions below this block */
+        int checked = 0;
         BlockPos fuelPos = null;
-        while (neighbourhood.hasNext() && fuelPos == null) {
-            BlockPos current = neighbourhood.next();
-            IBlockState blockState = worldIn.getBlockState(current);
+        Random rand = worldIn.rand;
+        BlockPos lowerBound = new BlockPos(stemPos.getX() - 1, 0, stemPos.getZ() - 1);
 
-            if (blockState.getBlock().equals(Blocks.LAVA)) {
-                if (blockState.getValue(BlockLiquid.LEVEL) == 0) {
-                    fuelPos = current;
-                }
+        while (fuelPos == null && checked < 16) {
+            BlockPos checkPos = lowerBound.add(rand.nextInt(3), rand.nextInt(stemPos.getY() - 1), rand.nextInt(3));
+
+            Block block = worldIn.getBlockState(checkPos).getBlock();
+
+            /** @TODO add a configurable ore list to the config and then steal a list from Botania */
+            System.out.println("|" + block.getClass().getSimpleName() + "|");
+            System.out.println(block.getClass().getSimpleName().equals("BlockOre"));
+            if (block instanceof BlockOre || block.getClass().getSimpleName().equals("BlockOre")) {
+                System.out.println("in");
+
+                fuelPos = checkPos;
             }
+
+            checked++;
         }
 
         return fuelPos;
