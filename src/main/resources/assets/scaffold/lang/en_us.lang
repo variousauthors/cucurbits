@@ -15,8 +15,13 @@ item.copper_chestplate.name=Copper Chestplate
 item.copper_leggings.name=Copper Leggings
 item.copper_boots.name=Copper Boots
 
+item.seeds_corecumber.name=Corecumber Seed
+item.seeds_lavamelon.name=Lavamelon Seed
+
 # Blocks
 tile.ore_copper.name=Copper Ore
+tile.corecumber.name=Corecumber
+tile.lavamelon.name=Lavamelon
 
 # Creative Tabs
 itemGroup.scaffold=Scaffold

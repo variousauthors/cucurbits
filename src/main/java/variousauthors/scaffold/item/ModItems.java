@@ -13,8 +13,8 @@ public class ModItems {
     public static ItemCornSeed cornSeed = new ItemCornSeed();
     public static ItemCorn corn = new ItemCorn();
 
-    public static ItemLavamelonSeed lavamelonSeed = new ItemLavamelonSeed();
-    public static ItemCorecumberSeed corecumberSeed = new ItemCorecumberSeed();
+    public static ItemLavamelonSeed lavamelonSeed = new ItemLavamelonSeed("seeds_lavamelon");
+    public static ItemCorecumberSeed corecumberSeed = new ItemCorecumberSeed("seeds_corecumber");
 
     public static ItemSword copperSword = new ItemSword(Scaffold.copperToolMaterial, "copper_sword");
     public static ItemPickaxe copperPickaxe = new ItemPickaxe(Scaffold.copperToolMaterial, "copper_pickaxe");

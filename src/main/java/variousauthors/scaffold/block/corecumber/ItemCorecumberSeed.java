@@ -7,10 +7,10 @@ import variousauthors.scaffold.Scaffold;
 import variousauthors.scaffold.block.ModBlocks;
 
 public class ItemCorecumberSeed extends ItemSeeds implements CanRegisterItemModel {
-    public ItemCorecumberSeed() {
+    public ItemCorecumberSeed(String name) {
         super(ModBlocks.stemCorecumber, Blocks.FARMLAND);
-        setUnlocalizedName("seeds_corecumber");
+        setUnlocalizedName(name);
         setCreativeTab(Scaffold.creativeTab);
-        setRegistryName("seeds_corecumber");
+        setRegistryName(name);
     }
 }

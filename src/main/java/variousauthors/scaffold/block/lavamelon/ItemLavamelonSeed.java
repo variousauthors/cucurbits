@@ -7,10 +7,10 @@ import variousauthors.scaffold.Scaffold;
 import variousauthors.scaffold.block.ModBlocks;
 
 public class ItemLavamelonSeed extends ItemSeeds implements CanRegisterItemModel {
-    public ItemLavamelonSeed() {
+    public ItemLavamelonSeed(String name) {
         super(ModBlocks.stemLavamelon, Blocks.FARMLAND);
-        setUnlocalizedName("seeds_lavamelon");
+        setUnlocalizedName(name);
         setCreativeTab(Scaffold.creativeTab);
-        setRegistryName("seeds_lavamelon");
+        setRegistryName(name);
     }
 }

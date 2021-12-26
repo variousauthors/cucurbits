@@ -24,9 +24,9 @@ import javax.annotation.Nullable;
 import java.util.Random;
 
 public class BlockCorecumber extends BlockTileEntity<TileEntityCorecumber> implements CanRegisterItemBlock {
-    public BlockCorecumber()
+    public BlockCorecumber(String name)
     {
-        super(Material.ROCK, "corecumber");
+        super(Material.ROCK, name);
     }
 
     /**

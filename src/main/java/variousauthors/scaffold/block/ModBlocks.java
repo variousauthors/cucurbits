@@ -18,10 +18,10 @@ public class ModBlocks {
 
     public static BlockCounter counter = new BlockCounter();
 
-    public static BlockLavamelon lavamelon = new BlockLavamelon();
+    public static BlockLavamelon lavamelon = new BlockLavamelon("lavamelon");
     public static BlockStemLavamelon stemLavamelon = new BlockStemLavamelon(lavamelon, "stem_lavamelon");
 
-    public static BlockCorecumber corecumber = new BlockCorecumber();
+    public static BlockCorecumber corecumber = new BlockCorecumber("corecumber");
     public static BlockStemCorecumber stemCorecumber = new BlockStemCorecumber(corecumber, "stem_corecumber");
 
     public static void register(IForgeRegistry<Block> registry) {
