@@ -12,7 +12,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import variousauthors.scaffold.block.BlockStemCucurbit;
-import javax.annotation.Nullable;
+
+import java.util.Optional;
 import java.util.Random;
 
 public class BlockStemCorecumber extends BlockStemCucurbit
@@ -22,43 +23,8 @@ public class BlockStemCorecumber extends BlockStemCucurbit
         super(crop, name);
     }
 
-    public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
-    {
-        super.updateTick(worldIn, pos, state, rand);
-
-        if (!worldIn.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
-        if (!checkStemGrowthConditions(worldIn, pos)) return;
-
-        float f = getGrowthChance(this, worldIn, pos);
-        boolean def = rand.nextInt((int)(25.0F / f) + 1) == 0;
-
-        if(!net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, def)) return;
-
-        int i = ((Integer)state.getValue(AGE)).intValue();
-
-        if (i < 7)
-        {
-            IBlockState newState = state.withProperty(AGE, Integer.valueOf(i + 1));
-            worldIn.setBlockState(pos, newState, 2);
-        }
-        else
-        {
-            if (cropIsAlreadyGrown(worldIn, pos)) return;
-
-            /** @ASK should this really be mutating the parameter? */
-            pos = pos.offset(EnumFacing.Plane.HORIZONTAL.random(rand));
-
-            if (!canGrowCropAtPos(worldIn, pos)) return;
-
-            tryToGrowCrop(worldIn, pos);
-        }
-
-        net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state, worldIn.getBlockState(pos));
-    }
-
-    @Nullable
-    protected BlockPos findFuelBlockInWorld(World worldIn, BlockPos stemPos) {
-        /** get 16 random positions below this block */
+    protected Optional<BlockPos> findFuelBlockInWorld(World worldIn, BlockPos stemPos) {
+        /* get 16 random positions below this block */
         int checked = 0;
         BlockPos fuelPos = null;
         Random rand = worldIn.rand;
@@ -69,7 +35,7 @@ public class BlockStemCorecumber extends BlockStemCucurbit
 
             Block block = worldIn.getBlockState(checkPos).getBlock();
 
-            /** @TODO add a configurable ore list to the config and then steal a list from Botania */
+            /* @TODO add a configurable ore list to the config and then steal a list from Botania */
             if (block instanceof BlockOre || block.getClass().getSimpleName().equals("BlockOre")) {
                 fuelPos = checkPos;
             }
@@ -77,56 +43,31 @@ public class BlockStemCorecumber extends BlockStemCucurbit
             checked++;
         }
 
-        return fuelPos;
-    }
-
-    protected boolean checkStemGrowthConditions(World worldIn, BlockPos pos) {
-        return worldIn.getLightFromNeighbors(pos.up()) >= 9;
-    }
-
-    protected boolean cropIsAlreadyGrown(World worldIn, BlockPos pos) {
-        for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
-        {
-            if (worldIn.getBlockState(pos.offset(enumfacing)).getBlock() == this.crop)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public boolean canGrowCropAtPos(World worldIn, BlockPos soilPos) {
-        IBlockState soil = worldIn.getBlockState(soilPos.down());
-        Block block = soil.getBlock();
-
-        return worldIn.isAirBlock(soilPos)
-                && (block.canSustainPlant(soil, worldIn, soilPos.down(), EnumFacing.UP, this)
-                || block == Blocks.DIRT
-                || block == Blocks.GRASS);
+        return Optional.ofNullable(fuelPos);
     }
 
     protected void tryToGrowCrop(World worldIn, BlockPos pos) {
-        BlockPos fuelPos = findFuelBlockInWorld(worldIn, pos);
+        findFuelBlockInWorld(worldIn, pos).ifPresent(fuelPos -> {
+            IBlockState fuelState = worldIn.getBlockState(fuelPos);
+            NonNullList<ItemStack> drops = NonNullList.create();
+            fuelState.getBlock().getDrops(drops, worldIn, fuelPos, fuelState, 0);
 
-        if (fuelPos == null) return;
+            if (drops.isEmpty()) return;
 
-        IBlockState fuelState = worldIn.getBlockState(fuelPos);
-        NonNullList<ItemStack> drops = NonNullList.create();
-        fuelState.getBlock().getDrops(drops, worldIn, fuelPos, fuelState, 0);
+            /* @TODO this should use "porous stone" so that we can find them later */
+            worldIn.setBlockState(fuelPos, Blocks.COBBLESTONE.getDefaultState());
+            worldIn.setBlockState(pos, this.crop.getDefaultState());
+            TileEntity te = worldIn.getTileEntity(pos);
 
-        if (drops.isEmpty()) return;
+            if (te instanceof TileEntityCorecumber) {
+                IItemHandler itemHandler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
 
-        /** @TODO this should use "porous stone" so that we can find them later */
-        worldIn.setBlockState(fuelPos, Blocks.COBBLESTONE.getDefaultState());
-        worldIn.setBlockState(pos, this.crop.getDefaultState());
-        TileEntity te = worldIn.getTileEntity(pos);
+                if (itemHandler == null) return;
 
-        if (te instanceof TileEntityCorecumber) {
-            IItemHandler itemHandler = ((TileEntityCorecumber) te).getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
-            for (ItemStack drop : drops) {
-                itemHandler.insertItem(0, drop, false);
+                for (ItemStack drop : drops) {
+                    itemHandler.insertItem(0, drop, false);
+                }
             }
-        }
+        });
     }
 }
