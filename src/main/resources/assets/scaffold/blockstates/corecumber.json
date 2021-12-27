@@ -1,8 +1,8 @@
 {
   "variants": {
-    "normal": { "model": "scaffold:lavamelon" },
+    "normal": { "model": "scaffold:corecumber" },
     "inventory": {
-      "model": "scaffold:lavamelon"
+      "model": "scaffold:corecumber"
     }
   }
 }

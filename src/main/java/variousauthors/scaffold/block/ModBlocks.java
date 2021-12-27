@@ -4,6 +4,8 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
+import variousauthors.scaffold.block.bakers_squash.BlockBakersSquash;
+import variousauthors.scaffold.block.bakers_squash.BlockStemBakersSquash;
 import variousauthors.scaffold.block.corecumber.BlockCorecumber;
 import variousauthors.scaffold.block.corecumber.BlockStemCorecumber;
 import variousauthors.scaffold.block.counter.BlockCounter;
@@ -24,6 +26,10 @@ public class ModBlocks {
     public static BlockCorecumber corecumber = new BlockCorecumber("corecumber");
     public static BlockStemCorecumber stemCorecumber = new BlockStemCorecumber(corecumber, "stem_corecumber");
 
+    /* alternative names: Gherkiln, kiln cucumber, kiln squash */
+    public static BlockBakersSquash bakersSquash = new BlockBakersSquash("bakers_squash");
+    public static BlockStemBakersSquash stemBakersSquash = new BlockStemBakersSquash(bakersSquash, "stem_bakers_squash");
+
     public static void register(IForgeRegistry<Block> registry) {
         registry.registerAll(
                 oreCopper,
@@ -33,11 +39,14 @@ public class ModBlocks {
                 lavamelon,
                 stemLavamelon,
                 corecumber,
-                stemCorecumber
+                stemCorecumber,
+                bakersSquash,
+                stemBakersSquash
         );
 
         GameRegistry.registerTileEntity(pedestal.getTileEntityClass(), pedestal.getRegistryName().toString());
         GameRegistry.registerTileEntity(corecumber.getTileEntityClass(), corecumber.getRegistryName().toString());
+        GameRegistry.registerTileEntity(bakersSquash.getTileEntityClass(), bakersSquash.getRegistryName().toString());
     }
 
     public static void registerItemBlocks(IForgeRegistry<Item> registry) {
@@ -46,7 +55,8 @@ public class ModBlocks {
                 pedestal.createItemBlock(),
                 counter.createItemBlock(),
                 lavamelon.createItemBlock(),
-                corecumber.createItemBlock()
+                corecumber.createItemBlock(),
+                bakersSquash.createItemBlock()
         );
     }
 
@@ -56,6 +66,7 @@ public class ModBlocks {
         counter.registerItemModel();
         lavamelon.registerItemModel();
         corecumber.registerItemModel();
+        bakersSquash.registerItemModel();
     }
 
 }

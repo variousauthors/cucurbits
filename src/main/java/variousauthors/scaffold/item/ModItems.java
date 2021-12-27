@@ -4,6 +4,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 import variousauthors.scaffold.Scaffold;
+import variousauthors.scaffold.block.bakers_squash.ItemBakersSquashSeed;
 import variousauthors.scaffold.block.corecumber.ItemCorecumberSeed;
 import variousauthors.scaffold.block.lavamelon.ItemLavamelonSeed;
 import variousauthors.scaffold.item.tool.*;
@@ -15,6 +16,7 @@ public class ModItems {
 
     public static ItemLavamelonSeed lavamelonSeed = new ItemLavamelonSeed("seeds_lavamelon");
     public static ItemCorecumberSeed corecumberSeed = new ItemCorecumberSeed("seeds_corecumber");
+    public static ItemBakersSquashSeed bakersSquashSeed = new ItemBakersSquashSeed("seeds_bakers_squash");
 
     public static ItemSword copperSword = new ItemSword(Scaffold.copperToolMaterial, "copper_sword");
     public static ItemPickaxe copperPickaxe = new ItemPickaxe(Scaffold.copperToolMaterial, "copper_pickaxe");
@@ -42,7 +44,8 @@ public class ModItems {
                 copperLeggings,
                 copperBoots,
                 lavamelonSeed,
-                corecumberSeed
+                corecumberSeed,
+                bakersSquashSeed
         );
     }
 
@@ -61,5 +64,6 @@ public class ModItems {
         copperBoots.registerItemModel();
         lavamelonSeed.registerItemModel();
         corecumberSeed.registerItemModel();
+        bakersSquashSeed.registerItemModel();
     }
 }

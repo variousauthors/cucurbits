@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "normal": { "model": "scaffold:bakers_squash" },
+    "inventory": {
+      "model": "scaffold:bakers_squash"
+    }
+  }
+}
