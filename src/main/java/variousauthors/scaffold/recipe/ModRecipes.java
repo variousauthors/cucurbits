@@ -8,7 +8,7 @@ import variousauthors.scaffold.item.ModItems;
 public class ModRecipes {
 
     public static void init() {
-        GameRegistry.addSmelting(ModBlocks.oreCopper, new ItemStack(ModItems.ingotCopper), 0.7f);
+        GameRegistry.addSmelting(ModBlocks.oreCopper, new ItemStack(ModItems.ingotCopper, 1), 0.7f);
 
         ModBlocks.oreCopper.initOreDict();
         ModItems.ingotCopper.initOreDict();

@@ -1,30 +1,23 @@
 package variousauthors.scaffold.block.corecumber;
 
-import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import variousauthors.scaffold.CanRegisterItemBlock;
+import variousauthors.scaffold.ContainerFruit;
 import variousauthors.scaffold.CucurbitFruit;
-import variousauthors.scaffold.block.BlockBase;
 import variousauthors.scaffold.block.BlockTileEntity;
-import variousauthors.scaffold.block.pedestal.TileEntityPedestal;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class BlockCorecumber extends BlockTileEntity<TileEntityCorecumber> implements CanRegisterItemBlock, CucurbitFruit {
+public class BlockCorecumber extends BlockTileEntity<TileEntityCorecumber> implements CanRegisterItemBlock, CucurbitFruit, ContainerFruit {
     public BlockCorecumber(String name)
     {
         super(Material.ROCK, name);
@@ -51,13 +44,21 @@ public class BlockCorecumber extends BlockTileEntity<TileEntityCorecumber> imple
 
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
+        System.out.println("breakBlock");
+
+        // TODO this should also drop a seed
         TileEntityCorecumber tile = getTileEntity(world, pos);
-        IItemHandler itemHandler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
-        ItemStack stack = itemHandler.getStackInSlot(0);
-        if (!stack.isEmpty()) {
-            EntityItem item = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), stack);
-            world.spawnEntity(item);
+
+        if (tile != null) {
+            IItemHandler itemHandler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
+            ItemStack stack = itemHandler.getStackInSlot(0);
+
+            if (!stack.isEmpty()) {
+                EntityItem item = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), stack);
+                world.spawnEntity(item);
+            }
         }
+
         super.breakBlock(world, pos, state);
     }
 }
