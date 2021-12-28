@@ -3,8 +3,6 @@ package variousauthors.scaffold.block.bakers_squash;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockChest;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.tileentity.TileEntity;
@@ -33,7 +31,7 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
             // if crop is already grown, do the crop grown version
             tryToFeedCrop(worldIn, pos);
         } else {
-            /** @ASK should this really be mutating the parameter? Vanilla does this. */
+            /* TODO should this really be mutating the parameter? Vanilla does this. */
             pos = pos.offset(EnumFacing.Plane.HORIZONTAL.random(rand));
 
             if (!canGrowCropAtPos(worldIn, pos)) return;
@@ -71,7 +69,7 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         // if the drop matches the internal inventory
         // then replace that block with... ash? sand? dirt? and add the cooked outout to the fruit
 
-        return Optional.ofNullable(null);
+        return Optional.empty();
     }
 
     /** this breaks the block, gets the drops, or asks the fruit to extract its contents */
@@ -130,7 +128,7 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         return drops;
     }
 
-    private int FUEL_EXTRACTION_RATE = 8;
+    final private int FUEL_EXTRACTION_RATE = 8;
 
     protected void tryToGrowCrop(World worldIn, BlockPos pos) {
         /* don't need to worry about the fruit being full, since the fruit does
@@ -212,7 +210,6 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
     }
 
     protected boolean isHarvestable(World worldIn, BlockPos pos) {
-        Block block = worldIn.getBlockState(pos).getBlock();
 
         // check for getSeed and getCrop methods
         // check for PlantType "crop"

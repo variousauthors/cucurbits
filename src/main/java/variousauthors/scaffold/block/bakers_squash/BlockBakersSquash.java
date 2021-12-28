@@ -10,12 +10,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import variousauthors.scaffold.CanRegisterItemBlock;
+import variousauthors.scaffold.ContainerFruit;
 import variousauthors.scaffold.block.BlockTileEntity;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class BlockBakersSquash extends BlockTileEntity<TileEntityBakersSquash> implements CanRegisterItemBlock, CucurbitFruit {
+public class BlockBakersSquash extends BlockTileEntity<TileEntityBakersSquash> implements CanRegisterItemBlock, ContainerFruit<TileEntityBakersSquash> {
     public BlockBakersSquash(String name)
     {
         super(Material.ROCK, name);
@@ -43,8 +44,15 @@ public class BlockBakersSquash extends BlockTileEntity<TileEntityBakersSquash> i
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
         TileEntityBakersSquash tile = getTileEntity(world, pos);
+
+        if (null == tile) return;
+
         IItemHandler itemHandler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
+
+        if (null == itemHandler) return;
+
         ItemStack stack = itemHandler.getStackInSlot(0);
+
         if (!stack.isEmpty()) {
             EntityItem item = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), stack);
             world.spawnEntity(item);

@@ -10,12 +10,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import variousauthors.scaffold.CanRegisterItemBlock;
+import variousauthors.scaffold.ContainerFruit;
 import variousauthors.scaffold.block.BlockTileEntity;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class BlockCorecumber extends BlockTileEntity<TileEntityCorecumber> implements CanRegisterItemBlock, CucurbitFruit, ContainerFruit {
+public class BlockCorecumber extends BlockTileEntity<TileEntityCorecumber> implements CanRegisterItemBlock, ContainerFruit<TileEntityCorecumber> {
     public BlockCorecumber(String name)
     {
         super(Material.ROCK, name);
@@ -42,19 +43,20 @@ public class BlockCorecumber extends BlockTileEntity<TileEntityCorecumber> imple
 
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
-        System.out.println("breakBlock");
-
         // TODO this should also drop a seed
         TileEntityCorecumber tile = getTileEntity(world, pos);
 
-        if (tile != null) {
-            IItemHandler itemHandler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
-            ItemStack stack = itemHandler.getStackInSlot(0);
+        if (tile == null) return;
 
-            if (!stack.isEmpty()) {
-                EntityItem item = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), stack);
-                world.spawnEntity(item);
-            }
+        IItemHandler itemHandler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
+
+        if (itemHandler == null) return;
+
+        ItemStack stack = itemHandler.getStackInSlot(0);
+
+        if (!stack.isEmpty()) {
+            EntityItem item = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), stack);
+            world.spawnEntity(item);
         }
 
         super.breakBlock(world, pos, state);
