@@ -35,42 +35,18 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         super(crop, name);
     }
 
-    public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
-    {
-        this.checkAndDropBlock(worldIn, pos, state);
+    protected void growFruit(World worldIn, BlockPos pos, IBlockState state, Random rand) {
+        if (cropIsAlreadyGrown(worldIn, pos)) {
+            // if crop is already grown, do the crop grown version
+            tryToFeedCrop(worldIn, pos);
+        } else {
+            /** @ASK should this really be mutating the parameter? Vanilla does this. */
+            pos = pos.offset(EnumFacing.Plane.HORIZONTAL.random(rand));
 
-        if (!worldIn.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
-        if (!checkStemGrowthConditions(worldIn, pos)) return;
+            if (!canGrowCropAtPos(worldIn, pos)) return;
 
-        float f = getGrowthChance(this, worldIn, pos);
-        boolean def = rand.nextInt((int)(25.0F / f) + 1) == 0;
-
-        if(!net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, def)) return;
-
-        int i = ((Integer)state.getValue(AGE)).intValue();
-
-        if (i < 7)
-        {
-            IBlockState newState = state.withProperty(AGE, Integer.valueOf(i + 1));
-            worldIn.setBlockState(pos, newState, 2);
+            tryToGrowCrop(worldIn, pos);
         }
-        else
-        {
-
-            if (cropIsAlreadyGrown(worldIn, pos)) {
-                // if crop is already grown, do the crop grown version
-                tryToFeedCrop(worldIn, pos);
-            } else {
-                /** @ASK should this really be mutating the parameter? Vanilla does this. */
-                pos = pos.offset(EnumFacing.Plane.HORIZONTAL.random(rand));
-
-                if (!canGrowCropAtPos(worldIn, pos)) return;
-
-                tryToGrowCrop(worldIn, pos);
-            }
-        }
-
-        net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state, worldIn.getBlockState(pos));
     }
 
     private NonNullList<ItemStack> nicelyHarvestCompanionCrop(World worldIn, BlockPos pos) {

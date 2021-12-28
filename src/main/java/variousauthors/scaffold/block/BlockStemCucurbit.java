@@ -20,6 +20,18 @@ abstract public class BlockStemCucurbit extends BlockStem {
         setRegistryName(name);
     }
 
+    /** if all the conditions are juuuuuust right, the stem will do its magic */
+    protected void growFruit(World worldIn, BlockPos pos, IBlockState state, Random rand) {
+        if (cropIsAlreadyGrown(worldIn, pos)) return;
+
+        /** @ASK should this really be mutating the parameter? Vanilla does this. */
+        pos = pos.offset(EnumFacing.Plane.HORIZONTAL.random(rand));
+
+        if (!canGrowCropAtPos(worldIn, pos)) return;
+
+        tryToGrowCrop(worldIn, pos);
+    }
+
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
         this.checkAndDropBlock(worldIn, pos, state);
@@ -36,19 +48,11 @@ abstract public class BlockStemCucurbit extends BlockStem {
 
         if (i < 7)
         {
-            IBlockState newState = state.withProperty(AGE, Integer.valueOf(i + 1));
-            worldIn.setBlockState(pos, newState, 2);
+            growStem(worldIn, pos, state, Integer.valueOf(i + 1));
         }
         else
         {
-            if (cropIsAlreadyGrown(worldIn, pos)) return;
-
-            /** @ASK should this really be mutating the parameter? Vanilla does this. */
-            pos = pos.offset(EnumFacing.Plane.HORIZONTAL.random(rand));
-
-            if (!canGrowCropAtPos(worldIn, pos)) return;
-
-            tryToGrowCrop(worldIn, pos);
+            growFruit(worldIn, pos, state, rand);
         }
 
         net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state, worldIn.getBlockState(pos));
