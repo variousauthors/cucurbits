@@ -64,6 +64,7 @@ abstract public class BlockStemCucurbit extends BlockStem {
         return worldIn.getLightFromNeighbors(pos.up()) >= 9;
     }
 
+    /* TODO rename this to `fruiIsAlreadyGrown` */
     protected boolean cropIsAlreadyGrown(World worldIn, BlockPos pos) {
         for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
         {
@@ -76,6 +77,7 @@ abstract public class BlockStemCucurbit extends BlockStem {
         return false;
     }
 
+    /* TODO rename this to `canGrowFruitAtPos` */
     protected boolean canGrowCropAtPos(World worldIn, BlockPos soilPos) {
         IBlockState soil = worldIn.getBlockState(soilPos.down());
         Block block = soil.getBlock();
@@ -88,6 +90,7 @@ abstract public class BlockStemCucurbit extends BlockStem {
 
     /** default implementation just puts the crop in the world */
     protected void tryToGrowCrop(World worldIn, BlockPos pos) {
+        /* TODO rename this to `tryToGrowFruit` */
         findFuelBlockInWorld(worldIn, pos).ifPresent(fuelPos -> {
             worldIn.setBlockState(fuelPos, Blocks.AIR.getDefaultState());
             worldIn.setBlockState(pos, this.crop.getDefaultState());

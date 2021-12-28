@@ -7,7 +7,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import variousauthors.scaffold.CucurbitFruit;
 import variousauthors.scaffold.block.BlockBase;
 
 public class BlockLavamelon extends BlockBase implements CucurbitFruit {

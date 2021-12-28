@@ -2,10 +2,9 @@ package variousauthors.scaffold.block.bakers_squash;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockChest;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.BlockOre;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.tileentity.TileEntity;
@@ -13,16 +12,10 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.EnumPlantType;
-import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import org.lwjgl.Sys;
-import scala.tools.cmd.gen.AnyValReps;
 import variousauthors.scaffold.ContainerFruit;
-import variousauthors.scaffold.CucurbitFruit;
 import variousauthors.scaffold.block.BlockStemCucurbit;
-import variousauthors.scaffold.block.corecumber.TileEntityCorecumber;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -56,10 +49,13 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
     private void tryToFeedCrop(World worldIn, BlockPos pos) {
         findFuelBlockInWorld(worldIn, pos).ifPresent(fuelPos -> {
             // TODO
+            /* remember to check if the fruit is full or if the insert would fill the fruit */
         });
     }
 
     protected Optional<BlockPos> findFuelBlockInWorld(World worldIn, BlockPos stemPos) {
+        /* remember to check if the fruit is full or if the insert would fill the fruit */
+
         // check the companion crop positions
 
         // if it's a crop, check its drop
@@ -78,7 +74,35 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         return Optional.ofNullable(null);
     }
 
-    /* get the drops from a block in the world with getDrops OR get the contents ofa ContainerFruit */
+    /** this breaks the block, gets the drops, or asks the fruit to extract its contents */
+    private NonNullList<ItemStack> extractDropsFromFuel(World worldIn, BlockPos fuelPos, IBlockState fuelState, int fortune, int amount) {
+        Block fuelBlock = worldIn.getBlockState(fuelPos).getBlock();
+        NonNullList<ItemStack> drops = NonNullList.create();
+
+        // TODO remove this, this is just here do that I can use chests for debugging
+        TileEntity te = worldIn.getTileEntity(fuelPos);
+        IItemHandler itemHandler = te == null ? null : te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
+
+        if (fuelBlock instanceof ContainerFruit) {
+            ((ContainerFruit<?>) fuelBlock).extractContents(drops, worldIn, fuelPos, amount);
+        } else if (null != itemHandler) {
+            // TODO remove this, this is just here do that I can use chests for debugging
+
+            for (int i = 0; i < itemHandler.getSlots(); i++) {
+                ItemStack stack = itemHandler.extractItem(i, amount, false);
+
+                if (!stack.isEmpty()) {
+                    drops.add(stack);
+                }
+            }
+        } else {
+            fuelState.getBlock().getDrops(drops, worldIn, fuelPos, fuelState, fortune);
+        }
+
+        return drops;
+    }
+
+    /* get the drops from a block in the world with getDrops OR get the contents of ContainerFruit */
     private NonNullList<ItemStack> getDropsFromFuel(World worldIn, BlockPos fuelPos, IBlockState fuelState, int fortune) {
         Block fuelBlock = worldIn.getBlockState(fuelPos).getBlock();
         NonNullList<ItemStack> drops = NonNullList.create();
@@ -88,7 +112,7 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         IItemHandler itemHandler = te == null ? null : te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
 
         if (fuelBlock instanceof ContainerFruit) {
-            ((ContainerFruit<?>) fuelBlock).getContents(drops, worldIn, fuelPos);
+            ((ContainerFruit) fuelBlock).getContents(drops, worldIn, fuelPos);
         } else if (null != itemHandler) {
             // TODO remove this, this is just here do that I can use chests for debugging
 
@@ -106,40 +130,55 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         return drops;
     }
 
+    private int FUEL_EXTRACTION_RATE = 8;
+
     protected void tryToGrowCrop(World worldIn, BlockPos pos) {
+        /* don't need to worry about the fruit being full, since the fruit does
+        * not exist yet */
         findInitialFuelBlockInWorld(worldIn, pos).ifPresent(fuelPos -> {
             IBlockState fuelState = worldIn.getBlockState(fuelPos);
-            NonNullList<ItemStack> drops = getDropsFromFuel(worldIn, fuelPos, fuelState, 0);
+            NonNullList<ItemStack> drops = extractDropsFromFuel(worldIn, fuelPos, fuelState, 0, FUEL_EXTRACTION_RATE);
 
+            /* maybe we should throw here, since we've already checked in a previous method that
+            * the drops were not empty... maybe just during dev? */
             if (drops.isEmpty()) return;
 
-            if (isCucurbitFruit(worldIn, fuelPos)) {
-                worldIn.removeTileEntity(fuelPos);
-            }
+            if (!worldIn.setBlockState(pos, this.crop.getDefaultState())) return;
 
-            worldIn.setBlockState(fuelPos, Blocks.AIR.getDefaultState());
-            worldIn.setBlockState(pos, this.crop.getDefaultState());
-            TileEntity te = worldIn.getTileEntity(pos);
-
-            if (te instanceof TileEntityBakersSquash) {
-                IItemHandler itemHandler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
-
-                if (itemHandler == null) return;
-
-                for (ItemStack drop : drops) {
-                    ItemStack output = FurnaceRecipes.instance().getSmeltingResult(drop).copy();
-                    output.setCount(drop.getCount());
-
-                    if (!output.isEmpty()) {
-                        itemHandler.insertItem(0, output, false);
-                    }
-                }
-            }
+            /* we are not doing anything with the remainder right now
+            * but maybe later we can... */
+            cookAndInsert(worldIn, pos, drops);
         });
     }
 
+    /* this is here for now, the logic is that the stem does the cooking, and then
+    * feeds the cooked drops into the fruit, which is just a container */
+    /* cook and insert will do bounds checking on the fruit, and fail to insert if the fruit is full */
+    private void cookAndInsert(World worldIn, BlockPos pos, NonNullList<ItemStack> drops) {
+        NonNullList<ItemStack> cooked = NonNullList.create();
+
+        for (ItemStack drop : drops) {
+            ItemStack output = FurnaceRecipes.instance().getSmeltingResult(drop).copy();
+
+            if (!output.isEmpty()) {
+                output.setCount(drop.getCount());
+                cooked.add(output);
+            }
+        }
+
+        if (!cooked.isEmpty()) {
+            Block block = worldIn.getBlockState(pos).getBlock();
+
+            if (isContainerFruit(block)) {
+                ((ContainerFruit) block).insertContents(cooked, worldIn, pos);
+            }
+        }
+    }
+
+    /** searches the companion crop positions for valid fuel sources */
     private Optional<BlockPos> findInitialFuelBlockInWorld(World worldIn, BlockPos stemPos) {
-        // check the companion crop positions
+        /* we don't need to worry about the fruit being "full" because there is no fruit yet */
+
         BlockPos from = stemPos.west().north();
         BlockPos to = stemPos.east().south();
 
@@ -158,7 +197,7 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
 
             if (isHarvestable(worldIn, current)) {
                 // to do
-            } else if (isCucurbitFruit(worldIn, current)) {
+            } else if (isContainerFruit(worldIn, current)) {
                 NonNullList<ItemStack> drops = getDropsFromFuel(worldIn, current, blockState, 0);
 
                 for (ItemStack drop : drops) {
@@ -183,8 +222,12 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         return false;
     }
 
-    protected boolean isCucurbitFruit(World worldIn, BlockPos pos) {
-        return worldIn.getBlockState(pos).getBlock() instanceof CucurbitFruit
+    protected boolean isContainerFruit(Block block) {
+        return block instanceof ContainerFruit || block instanceof BlockChest;
+    }
+
+    protected boolean isContainerFruit(World worldIn, BlockPos pos) {
+        return worldIn.getBlockState(pos).getBlock() instanceof ContainerFruit
                 || worldIn.getBlockState(pos).getBlock() instanceof BlockChest;
     }
 }

@@ -10,8 +10,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import variousauthors.scaffold.CanRegisterItemBlock;
-import variousauthors.scaffold.ContainerFruit;
-import variousauthors.scaffold.CucurbitFruit;
 import variousauthors.scaffold.block.BlockTileEntity;
 
 import javax.annotation.Nullable;
