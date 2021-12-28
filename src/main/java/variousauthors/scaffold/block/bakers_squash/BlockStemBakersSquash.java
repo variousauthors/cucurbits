@@ -46,30 +46,65 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
 
     private void tryToFeedCrop(World worldIn, BlockPos pos) {
         findFuelBlockInWorld(worldIn, pos).ifPresent(fuelPos -> {
-            // TODO
-            /* remember to check if the fruit is full or if the insert would fill the fruit */
+            findCropMatchingStem(worldIn, pos).ifPresent(crop -> {
+                if (!(crop instanceof ContainerFruit)) return;
+
+                ContainerFruit fruit = (ContainerFruit) crop;
+
+                if (fruit.isFull(worldIn, pos)) return;
+
+                IBlockState fuelState = worldIn.getBlockState(fuelPos);
+                NonNullList<ItemStack> drops = extractDropsFromFuel(worldIn, fuelPos, fuelState, 0, FUEL_EXTRACTION_RATE);
+
+                /* maybe we should throw here, since we've already checked in a previous method that
+                 * the drops were not empty... maybe just during dev? */
+                if (drops.isEmpty()) return;
+
+                /* we are not doing anything with the remainder right now
+                 * but maybe later we can... */
+                cookAndInsert(worldIn, pos, drops);
+            });
         });
     }
 
     protected Optional<BlockPos> findFuelBlockInWorld(World worldIn, BlockPos stemPos) {
         /* remember to check if the fruit is full or if the insert would fill the fruit */
 
-        // check the companion crop positions
+        BlockPos from = stemPos.west().north();
+        BlockPos to = stemPos.east().south();
 
-        // if it's a crop, check its drop
-        // and if the furnace output is the same kind of item as the fruit has
-        // then so then harvest the crop nicely
+        Iterator<BlockPos> neighbourhood = BlockPos.getAllInBox(from, to).iterator();
+        BlockPos fuelPos = null;
 
-        // if it is a Cucurbit fruit using fruitBlock.isCucurbitsFruit
-        // and if the furnace output is the same kind of item as the fruit has
-        // then extract one item and add its cooked output to the fruit
+        while (neighbourhood.hasNext() && fuelPos == null) {
+            BlockPos current = neighbourhood.next();
 
-        // if we don't find any input in the companion plant positions
+            // skip the middle
+            if (current.equals(stemPos)) {
+                continue;
+            }
+
+            IBlockState blockState = worldIn.getBlockState(current);
+
+            if (isHarvestable(worldIn, current)) {
+                // to do
+            } else if (isContainerFruit(worldIn, current)) {
+                NonNullList<ItemStack> drops = getDropsFromFuel(worldIn, current, blockState, 0);
+
+                for (ItemStack drop : drops) {
+                    if (!FurnaceRecipes.instance().getSmeltingResult(drop).isEmpty()) {
+                        fuelPos = current;
+                    }
+                }
+            }
+        }
+
+        // TODO if we don't find any input in the companion plant positions
         // check a few random position in the ground
         // if the drop matches the internal inventory
         // then replace that block with... ash? sand? dirt? and add the cooked outout to the fruit
 
-        return Optional.empty();
+        return Optional.ofNullable(fuelPos);
     }
 
     /** this breaks the block, gets the drops, or asks the fruit to extract its contents */
@@ -164,11 +199,15 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
             }
         }
 
-        if (!cooked.isEmpty()) {
-            Block block = worldIn.getBlockState(pos).getBlock();
+        if (cooked.isEmpty()) return;
 
-            if (isContainerFruit(block)) {
-                ((ContainerFruit) block).insertContents(cooked, worldIn, pos);
+        Block block = worldIn.getBlockState(pos).getBlock();
+
+        if (isContainerFruit(block)) {
+            ContainerFruit fruit = (ContainerFruit) block;
+
+            if (!fruit.isFull(worldIn, pos)) {
+                fruit.insertContents(cooked, worldIn, pos);
             }
         }
     }

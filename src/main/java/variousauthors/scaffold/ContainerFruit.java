@@ -11,6 +11,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
+/* TODO got to generalize this, the default behaviour
+*   should be multi-slot (OR, have MultiSlotContainerFruit out there) */
 public interface ContainerFruit<TE extends TileEntity> {
     TE getTileEntity(IBlockAccess world, BlockPos pos);
 
@@ -74,5 +76,21 @@ public interface ContainerFruit<TE extends TileEntity> {
             worldIn.removeTileEntity(pos);
             worldIn.setBlockState(pos, Blocks.AIR.getDefaultState());
         }
+    }
+
+    /* by default there is just one slot, so this literally just checks if that
+    * slot is full. */
+    default boolean isFull (World worldIn, BlockPos pos) {
+        TE tile = getTileEntity(worldIn, pos);
+
+        if (tile == null) return false;
+
+        IItemHandler itemHandler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
+
+        if (itemHandler == null) return false;
+
+        ItemStack stack = itemHandler.getStackInSlot(0);
+
+        return !(itemHandler.getSlotLimit(0) < stack.getCount());
     }
 }

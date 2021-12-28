@@ -64,17 +64,25 @@ abstract public class BlockStemCucurbit extends BlockStem {
         return worldIn.getLightFromNeighbors(pos.up()) >= 9;
     }
 
-    /* TODO rename this to `fruiIsAlreadyGrown` */
+    /* TODO rename this to `fruitIsAlreadyGrown` */
     protected boolean cropIsAlreadyGrown(World worldIn, BlockPos pos) {
+        return findCropMatchingStem(worldIn, pos)
+                .map(match -> true)
+                .orElse(false);
+    }
+
+    protected Optional<Block> findCropMatchingStem(World worldIn, BlockPos stemPos) {
         for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
         {
-            if (worldIn.getBlockState(pos.offset(enumfacing)).getBlock() == this.crop)
+            Block crop = worldIn.getBlockState(stemPos.offset(enumfacing)).getBlock();
+
+            if (crop == this.crop)
             {
-                return true;
+                return Optional.ofNullable(crop);
             }
         }
 
-        return false;
+        return Optional.empty();
     }
 
     /* TODO rename this to `canGrowFruitAtPos` */
