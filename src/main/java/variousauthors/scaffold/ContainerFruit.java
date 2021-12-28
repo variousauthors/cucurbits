@@ -10,6 +10,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import org.lwjgl.Sys;
 
 /* TODO got to generalize this, the default behaviour
 *   should be multi-slot (OR, have MultiSlotContainerFruit out there) */
@@ -90,7 +91,8 @@ public interface ContainerFruit<TE extends TileEntity> {
         if (itemHandler == null) return false;
 
         ItemStack stack = itemHandler.getStackInSlot(0);
+        System.out.println("stack: " + stack.getCount() + "/" + itemHandler.getSlotLimit(0));
 
-        return !(itemHandler.getSlotLimit(0) < stack.getCount());
+        return !(stack.getCount() < itemHandler.getSlotLimit(0));
     }
 }

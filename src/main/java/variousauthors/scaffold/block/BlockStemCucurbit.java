@@ -71,14 +71,15 @@ abstract public class BlockStemCucurbit extends BlockStem {
                 .orElse(false);
     }
 
-    protected Optional<Block> findCropMatchingStem(World worldIn, BlockPos stemPos) {
+    protected Optional<BlockPos> findCropMatchingStem(World worldIn, BlockPos stemPos) {
         for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
         {
-            Block crop = worldIn.getBlockState(stemPos.offset(enumfacing)).getBlock();
+            BlockPos foundPos = stemPos.offset(enumfacing);
+            Block crop = worldIn.getBlockState(foundPos).getBlock();
 
             if (crop == this.crop)
             {
-                return Optional.ofNullable(crop);
+                return Optional.ofNullable(foundPos);
             }
         }
 

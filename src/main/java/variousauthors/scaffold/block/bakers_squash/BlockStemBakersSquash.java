@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import org.lwjgl.Sys;
 import variousauthors.scaffold.ContainerFruit;
 import variousauthors.scaffold.block.BlockStemCucurbit;
 
@@ -44,14 +45,23 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         return NonNullList.create();
     }
 
-    private void tryToFeedCrop(World worldIn, BlockPos pos) {
-        findFuelBlockInWorld(worldIn, pos).ifPresent(fuelPos -> {
-            findCropMatchingStem(worldIn, pos).ifPresent(crop -> {
-                if (!(crop instanceof ContainerFruit)) return;
+    private void tryToFeedCrop(World worldIn, BlockPos stemPos) {
+        System.out.println("tryToFeedCrop");
 
-                ContainerFruit fruit = (ContainerFruit) crop;
+        findCropMatchingStem(worldIn, stemPos).ifPresent(cropPos -> {
+            Block crop = worldIn.getBlockState(cropPos).getBlock();
+            System.out.println("found fruit: " + crop);
 
-                if (fruit.isFull(worldIn, pos)) return;
+            if (!(crop instanceof ContainerFruit)) return;
+            System.out.println("is container");
+
+            ContainerFruit fruit = (ContainerFruit) crop;
+
+            if (fruit.isFull(worldIn, cropPos)) return;
+            System.out.println("not full");
+
+            findFuelBlockInWorld(worldIn, stemPos).ifPresent(fuelPos -> {
+                System.out.println("found fuel");
 
                 IBlockState fuelState = worldIn.getBlockState(fuelPos);
                 NonNullList<ItemStack> drops = extractDropsFromFuel(worldIn, fuelPos, fuelState, 0, FUEL_EXTRACTION_RATE);
@@ -62,7 +72,7 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
 
                 /* we are not doing anything with the remainder right now
                  * but maybe later we can... */
-                cookAndInsert(worldIn, pos, drops);
+                cookAndInsert(worldIn, cropPos, drops);
             });
         });
     }
@@ -200,14 +210,20 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         }
 
         if (cooked.isEmpty()) return;
+        System.out.println("cooked: " + cooked);
 
         Block block = worldIn.getBlockState(pos).getBlock();
 
         if (isContainerFruit(block)) {
+            System.out.println("got fruit");
+
             ContainerFruit fruit = (ContainerFruit) block;
 
             if (!fruit.isFull(worldIn, pos)) {
-                fruit.insertContents(cooked, worldIn, pos);
+                System.out.println("not full");
+
+                NonNullList<ItemStack> remainder = fruit.insertContents(cooked, worldIn, pos);
+                System.out.println("remainder: " + remainder);
             }
         }
     }
