@@ -82,7 +82,6 @@ public interface ContainerFruit<TE extends TileEntity> {
         return getItemHandler(worldIn, pos)
                 .map(itemHandler -> {
                     ItemStack stack = itemHandler.getStackInSlot(0);
-                    System.out.println("stack: " + stack.getCount() + "/" + itemHandler.getSlotLimit(0));
 
                     return !(stack.getCount() < itemHandler.getSlotLimit(0));
                 })
