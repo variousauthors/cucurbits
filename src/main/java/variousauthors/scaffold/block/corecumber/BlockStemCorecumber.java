@@ -23,7 +23,8 @@ public class BlockStemCorecumber extends BlockStemCucurbit
         super(crop, name);
     }
 
-    protected Optional<BlockPos> findFuelBlockInWorld(World worldIn, BlockPos stemPos) {
+    @Override
+    protected Optional<BlockPos> findFuelBlockInWorld(World worldIn, BlockPos stemPos, BlockPos fruitPos) {
         /* get 16 random positions below this block */
         int checked = 0;
         BlockPos fuelPos = null;
@@ -46,8 +47,9 @@ public class BlockStemCorecumber extends BlockStemCucurbit
         return Optional.ofNullable(fuelPos);
     }
 
-    protected void tryToGrowCrop(World worldIn, BlockPos pos) {
-        findFuelBlockInWorld(worldIn, pos).ifPresent(fuelPos -> {
+    @Override
+    protected void tryToGrowCrop(World worldIn, BlockPos stemPos, BlockPos targetPos) {
+        findFuelBlockInWorld(worldIn, stemPos, targetPos).ifPresent(fuelPos -> {
             IBlockState fuelState = worldIn.getBlockState(fuelPos);
             NonNullList<ItemStack> drops = NonNullList.create();
             fuelState.getBlock().getDrops(drops, worldIn, fuelPos, fuelState, 0);
@@ -56,8 +58,8 @@ public class BlockStemCorecumber extends BlockStemCucurbit
 
             /* @TODO this should use "porous stone" so that we can find them later */
             worldIn.setBlockState(fuelPos, Blocks.COBBLESTONE.getDefaultState());
-            worldIn.setBlockState(pos, this.crop.getDefaultState());
-            TileEntity te = worldIn.getTileEntity(pos);
+            worldIn.setBlockState(targetPos, this.crop.getDefaultState());
+            TileEntity te = worldIn.getTileEntity(targetPos);
 
             if (te instanceof TileEntityCorecumber) {
                 IItemHandler itemHandler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);

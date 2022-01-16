@@ -22,17 +22,18 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         super(crop, name);
     }
 
-    protected void growFruit(World worldIn, BlockPos pos, IBlockState state, Random rand) {
-        if (cropIsAlreadyGrown(worldIn, pos)) {
+    @Override
+    protected void growFruit(World worldIn, BlockPos stemPos, IBlockState state, Random rand) {
+        if (cropIsAlreadyGrown(worldIn, stemPos)) {
             // if crop is already grown, do the crop grown version
-            tryToFeedCrop(worldIn, pos);
+            tryToFeedCrop(worldIn, stemPos);
         } else {
             /* TODO should this really be mutating the parameter? Vanilla does this. */
-            pos = pos.offset(EnumFacing.Plane.HORIZONTAL.random(rand));
+            BlockPos targetPos = stemPos.offset(EnumFacing.Plane.HORIZONTAL.random(rand));
 
-            if (!canGrowCropAtPos(worldIn, pos)) return;
+            if (!canGrowCropAtPos(worldIn, targetPos)) return;
 
-            tryToGrowCrop(worldIn, pos);
+            tryToGrowCrop(worldIn, stemPos, targetPos);
         }
     }
 
@@ -50,7 +51,7 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
 
             if (fruit.isFull(worldIn, cropPos)) return;
 
-            findFuelBlockInWorld(worldIn, stemPos).ifPresent(fuelPos -> {
+            findFuelBlockInWorld(worldIn, stemPos, cropPos).ifPresent(fuelPos -> {
                 IBlockState fuelState = worldIn.getBlockState(fuelPos);
                 NonNullList<ItemStack> drops = extractDropsFromFuel(worldIn, fuelPos, fuelState, 0, FUEL_EXTRACTION_RATE);
 
@@ -102,12 +103,14 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         } else if (isHarvestable(fuelBlock)){
             fuelBlock.getDrops(drops, worldIn, fuelPos, fuelState, fortune);
 
+            boolean hasGrabbedSeed = false;
             // remove a seed item to replant
             for (int i = 0; i < drops.size(); i++) {
                 ItemStack drop = drops.get(i);
 
-                if (drop.isItemEqual(fuelBlock.getItem(worldIn, fuelPos, fuelState))) {
+                if (!hasGrabbedSeed && drop.isItemEqual(fuelBlock.getItem(worldIn, fuelPos, fuelState))) {
                     drop.shrink(1);
+                    hasGrabbedSeed = true;
                 }
             }
         }
@@ -117,8 +120,9 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
 
     final private int FUEL_EXTRACTION_RATE = 8;
 
-    protected void tryToGrowCrop(World worldIn, BlockPos pos) {
-        findFuelBlockInWorld(worldIn, pos).ifPresent(fuelPos -> {
+    @Override
+    protected void tryToGrowCrop(World worldIn, BlockPos stemPos, BlockPos targetPos) {
+        findFuelBlockInWorld(worldIn, stemPos, targetPos).ifPresent(fuelPos -> {
             IBlockState fuelState = worldIn.getBlockState(fuelPos);
             NonNullList<ItemStack> drops = extractDropsFromFuel(worldIn, fuelPos, fuelState, 0, FUEL_EXTRACTION_RATE);
 
@@ -126,11 +130,11 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
             * the drops were not empty... maybe just during dev? */
             if (drops.isEmpty()) return;
 
-            if (!worldIn.setBlockState(pos, this.crop.getDefaultState())) return;
+            if (!worldIn.setBlockState(targetPos, this.crop.getDefaultState())) return;
 
             /* we are not doing anything with the remainder right now
             * but maybe later we can... */
-            cookAndInsert(worldIn, pos, drops);
+            cookAndInsert(worldIn, targetPos, drops);
         });
     }
 
@@ -162,7 +166,8 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         }
     }
 
-    protected Optional<BlockPos> findFuelBlockInWorld(World worldIn, BlockPos stemPos) {
+    @Override
+    protected Optional<BlockPos> findFuelBlockInWorld(World worldIn, BlockPos stemPos, BlockPos fruitPos) {
         BlockPos from = stemPos.west().north();
         BlockPos to = stemPos.east().south();
 
@@ -172,8 +177,8 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         while (neighbourhood.hasNext() && fuelPos == null) {
             BlockPos current = neighbourhood.next();
 
-            // skip the middle
-            if (current.equals(stemPos)) {
+            // skip the middle and the fruit
+            if (current.equals(stemPos) || current.equals(fruitPos)) {
                 continue;
             }
 

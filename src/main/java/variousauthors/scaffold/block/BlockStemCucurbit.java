@@ -21,15 +21,15 @@ abstract public class BlockStemCucurbit extends BlockStem {
     }
 
     /** if all the conditions are juuuuuust right, the stem will do its magic */
-    protected void growFruit(World worldIn, BlockPos pos, IBlockState state, Random rand) {
-        if (cropIsAlreadyGrown(worldIn, pos)) return;
+    protected void growFruit(World worldIn, BlockPos stemPos, IBlockState state, Random rand) {
+        if (cropIsAlreadyGrown(worldIn, stemPos)) return;
 
         /** @ASK should this really be mutating the parameter? Vanilla does this. */
-        pos = pos.offset(EnumFacing.Plane.HORIZONTAL.random(rand));
+        BlockPos targetPos = stemPos.offset(EnumFacing.Plane.HORIZONTAL.random(rand));
 
-        if (!canGrowCropAtPos(worldIn, pos)) return;
+        if (!canGrowCropAtPos(worldIn, targetPos)) return;
 
-        tryToGrowCrop(worldIn, pos);
+        tryToGrowCrop(worldIn, stemPos, targetPos);
     }
 
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
@@ -58,7 +58,7 @@ abstract public class BlockStemCucurbit extends BlockStem {
         net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state, worldIn.getBlockState(pos));
     }
 
-    abstract protected Optional<BlockPos> findFuelBlockInWorld(World worldIn, BlockPos stemPos);
+    abstract protected Optional<BlockPos> findFuelBlockInWorld(World worldIn, BlockPos stemPos, BlockPos fruitPos);
 
     protected boolean checkStemGrowthConditions(World worldIn, BlockPos pos) {
         return worldIn.getLightFromNeighbors(pos.up()) >= 9;
@@ -98,11 +98,11 @@ abstract public class BlockStemCucurbit extends BlockStem {
     }
 
     /** default implementation just puts the crop in the world */
-    protected void tryToGrowCrop(World worldIn, BlockPos pos) {
+    protected void tryToGrowCrop(World worldIn, BlockPos stemPos, BlockPos targetPos) {
         /* TODO rename this to `tryToGrowFruit` */
-        findFuelBlockInWorld(worldIn, pos).ifPresent(fuelPos -> {
+        findFuelBlockInWorld(worldIn, stemPos, targetPos).ifPresent(fuelPos -> {
             worldIn.setBlockState(fuelPos, Blocks.AIR.getDefaultState());
-            worldIn.setBlockState(pos, this.crop.getDefaultState());
+            worldIn.setBlockState(targetPos, this.crop.getDefaultState());
         });
     }
 }

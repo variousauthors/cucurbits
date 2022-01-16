@@ -35,7 +35,8 @@ public class BlockStemLavamelon extends BlockStemCucurbit
         super(crop, name);
     }
 
-    protected Optional<BlockPos> findFuelBlockInWorld(World worldIn, BlockPos stemPos) {
+    @Override
+    protected Optional<BlockPos> findFuelBlockInWorld(World worldIn, BlockPos stemPos, BlockPos fruitPos) {
         /** right now it scans the whole box,
          * but I would rather it randomly check a few
          * blocks per tick over a wider area */
