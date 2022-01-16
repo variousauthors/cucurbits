@@ -8,8 +8,13 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.event.terraingen.SaplingGrowTreeEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import variousauthors.scaffold.ContainerFruit;
 import variousauthors.scaffold.block.BlockStemCucurbit;
+import variousauthors.scaffold.block.ModBlocks;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -162,6 +167,37 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
 
             if (!fruit.isFull(worldIn, pos)) {
                 fruit.insertContents(cooked, worldIn, pos);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onSaplingGrowTree(SaplingGrowTreeEvent event) {
+        System.out.println("onSaplingGrowTree");
+        World worldIn = event.getWorld();
+        System.out.println("remote: " + worldIn.isRemote);
+
+        if (!worldIn.isRemote) {
+            BlockPos eventPos = event.getPos();
+            BlockPos from = eventPos.west().north();
+            BlockPos to = eventPos.east().south();
+            Iterator<BlockPos> neighbourhood = BlockPos.getAllInBox(from, to).iterator();
+
+            BlockPos stemPos = null;
+
+            while (neighbourhood.hasNext() && stemPos == null) {
+                BlockPos current = neighbourhood.next();
+                Block block = worldIn.getBlockState(current).getBlock();
+                System.out.println("considering: " + block);
+
+                if (block == ModBlocks.stemBakersSquash) {
+                    System.out.println("found");
+
+                    // stop that sapling!
+                    event.setResult(Event.Result.DENY);
+
+                    // maybe schedule an update for the stem?
+                }
             }
         }
     }

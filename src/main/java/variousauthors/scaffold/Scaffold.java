@@ -5,6 +5,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -21,6 +22,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import variousauthors.scaffold.block.ModBlocks;
+import variousauthors.scaffold.block.bakers_squash.BlockStemBakersSquash;
 import variousauthors.scaffold.client.ScaffoldTab;
 import variousauthors.scaffold.item.ModItems;
 import variousauthors.scaffold.network.PacketRequestUpdatePedestal;
@@ -44,6 +46,10 @@ public class Scaffold {
     public static final ScaffoldTab creativeTab = new ScaffoldTab();
 
     public static final Logger LOGGER = LogManager.getLogger(Scaffold.modId);
+
+    public Scaffold () {
+        MinecraftForge.TERRAIN_GEN_BUS.register(BlockStemBakersSquash.class);
+    }
 
     @SidedProxy(serverSide = "variousauthors.scaffold.proxy.CommonProxy", clientSide = "variousauthors.scaffold.proxy.ClientProxy")
     public static CommonProxy proxy;
