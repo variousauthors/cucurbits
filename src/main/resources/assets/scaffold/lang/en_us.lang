@@ -18,12 +18,14 @@ item.copper_boots.name=Copper Boots
 item.seeds_corecumber.name=Corecumber Seed
 item.seeds_lavamelon.name=Lavamelon Seed
 item.seeds_bakers_squash.name=Baker's Squash Seed
+item.seeds_lumberjack.name=Lumberjackfruit Seed
 
 # Blocks
 tile.ore_copper.name=Copper Ore
 tile.corecumber.name=Corecumber
 tile.lavamelon.name=Lavamelon
 tile.bakers_squash.name=Baker's Squash
+tile.lumberjack.name=Lumberjackfruit
 
 # Creative Tabs
 itemGroup.scaffold=Scaffold

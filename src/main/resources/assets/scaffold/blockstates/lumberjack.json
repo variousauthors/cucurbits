@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "normal": { "model": "scaffold:lumberjack" },
+    "inventory": {
+      "model": "scaffold:lumberjack"
+    }
+  }
+}

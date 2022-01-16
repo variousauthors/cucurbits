@@ -7,6 +7,7 @@ import variousauthors.scaffold.Scaffold;
 import variousauthors.scaffold.block.bakers_squash.ItemBakersSquashSeed;
 import variousauthors.scaffold.block.corecumber.ItemCorecumberSeed;
 import variousauthors.scaffold.block.lavamelon.ItemLavamelonSeed;
+import variousauthors.scaffold.block.lumberjack.ItemLumberjackSeed;
 import variousauthors.scaffold.item.tool.*;
 
 public class ModItems {
@@ -17,6 +18,7 @@ public class ModItems {
     public static ItemLavamelonSeed lavamelonSeed = new ItemLavamelonSeed("seeds_lavamelon");
     public static ItemCorecumberSeed corecumberSeed = new ItemCorecumberSeed("seeds_corecumber");
     public static ItemBakersSquashSeed bakersSquashSeed = new ItemBakersSquashSeed("seeds_bakers_squash");
+    public static ItemLumberjackSeed lumberjackSeed = new ItemLumberjackSeed("seeds_lumberjack");
 
     public static ItemSword copperSword = new ItemSword(Scaffold.copperToolMaterial, "copper_sword");
     public static ItemPickaxe copperPickaxe = new ItemPickaxe(Scaffold.copperToolMaterial, "copper_pickaxe");
@@ -45,7 +47,8 @@ public class ModItems {
                 copperBoots,
                 lavamelonSeed,
                 corecumberSeed,
-                bakersSquashSeed
+                bakersSquashSeed,
+                lumberjackSeed
         );
     }
 
@@ -65,5 +68,6 @@ public class ModItems {
         lavamelonSeed.registerItemModel();
         corecumberSeed.registerItemModel();
         bakersSquashSeed.registerItemModel();
+        lumberjackSeed.registerItemModel();
     }
 }

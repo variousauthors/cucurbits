@@ -23,6 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import variousauthors.scaffold.block.ModBlocks;
 import variousauthors.scaffold.block.bakers_squash.BlockStemBakersSquash;
+import variousauthors.scaffold.block.lumberjack.BlockStemLumberjack;
 import variousauthors.scaffold.client.ScaffoldTab;
 import variousauthors.scaffold.item.ModItems;
 import variousauthors.scaffold.network.PacketRequestUpdatePedestal;
@@ -48,7 +49,7 @@ public class Scaffold {
     public static final Logger LOGGER = LogManager.getLogger(Scaffold.modId);
 
     public Scaffold () {
-        MinecraftForge.TERRAIN_GEN_BUS.register(BlockStemBakersSquash.class);
+        MinecraftForge.TERRAIN_GEN_BUS.register(BlockStemLumberjack.class);
     }
 
     @SidedProxy(serverSide = "variousauthors.scaffold.proxy.CommonProxy", clientSide = "variousauthors.scaffold.proxy.ClientProxy")

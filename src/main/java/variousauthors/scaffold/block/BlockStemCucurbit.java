@@ -71,6 +71,9 @@ abstract public class BlockStemCucurbit extends BlockStem {
                 .orElse(false);
     }
 
+    /* @TODO this should check only the FACING direction
+    *    since otherwise it will pick up fruit to which
+    * it is not attached... this should be renamed to "findAttachedCrop" or something */
     protected Optional<BlockPos> findCropMatchingStem(World worldIn, BlockPos stemPos) {
         for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
         {

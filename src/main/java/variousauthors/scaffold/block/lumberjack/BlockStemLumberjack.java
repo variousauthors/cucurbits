@@ -1,25 +1,42 @@
-package variousauthors.scaffold.block.bakers_squash;
+package variousauthors.scaffold.block.lumberjack;
 
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.event.terraingen.SaplingGrowTreeEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import variousauthors.scaffold.ContainerFruit;
 import variousauthors.scaffold.block.BlockStemCucurbit;
+import variousauthors.scaffold.block.ModBlocks;
 
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Random;
 
-public class BlockStemBakersSquash extends BlockStemCucurbit
+public class BlockStemLumberjack extends BlockStemCucurbit
 {
-    public BlockStemBakersSquash(Block crop, String name)
+    public BlockStemLumberjack(Block crop, String name)
     {
         super(crop, name);
+    }
+
+    @Override
+    public void growStem(World worldIn, BlockPos pos, IBlockState state, int amount) {
+        int i = ((Integer)state.getValue(AGE)).intValue() + amount;
+        int age = Integer.valueOf(Math.min(7, i));
+
+        if (age == 7) {
+            // turn off random ticks now that the stem is grown
+            setTickRandomly(false);
+        }
+
+        worldIn.setBlockState(pos, state.withProperty(AGE, age), 2);
     }
 
     @Override
@@ -35,6 +52,10 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
 
             tryToGrowCrop(worldIn, stemPos, targetPos);
         }
+    }
+
+    private NonNullList<ItemStack> nicelyHarvestCompanionCrop(World worldIn, BlockPos pos) {
+        return NonNullList.create();
     }
 
     private void tryToFeedCrop(World worldIn, BlockPos stemPos) {
@@ -57,33 +78,32 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
 
                 /* we are not doing anything with the remainder right now
                  * but maybe later we can... */
-                cookAndInsert(worldIn, cropPos, drops);
+                insert(worldIn, cropPos, drops);
             });
         });
     }
 
-    /** this breaks the block, gets the drops, or asks the fruit to extract its contents */
+    /** the lumberjack does not need to break the saplings it is planted with,
+     * it just gets 1 log of the type the sapling provides */
     private NonNullList<ItemStack> extractDropsFromFuel(World worldIn, BlockPos fuelPos, IBlockState fuelState, int fortune, int amount) {
         Block fuelBlock = worldIn.getBlockState(fuelPos).getBlock();
         NonNullList<ItemStack> drops = NonNullList.create();
 
-        if (fuelBlock instanceof ContainerFruit) {
-            ((ContainerFruit<?>) fuelBlock).extractContents(drops, worldIn, fuelPos, amount);
-        } else if (fuelBlock instanceof BlockCrops) {
-            // for now we will just use potato
-            fuelBlock.getDrops(drops, worldIn, fuelPos, fuelState, fortune);
+        if (fuelBlock instanceof BlockSapling) {
+            IBlockState saplingState = worldIn.getBlockState(fuelPos);
 
-            // remove one seed item
-            for (int i = 0; i < drops.size(); i++) {
-                ItemStack drop = drops.get(i);
-
-                if (drop.isItemEqual(fuelBlock.getItem(worldIn, fuelPos, fuelState))) {
-                    drop.shrink(1);
-                }
+            switch ((BlockPlanks.EnumType)saplingState.getValue(BlockSapling.TYPE)) {
+                case SPRUCE:
+                case ACACIA:
+                case DARK_OAK:
+                case OAK:
+                case BIRCH:
+                case JUNGLE:
+                default:
+                    IBlockState logState = Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT, BlockPlanks.EnumType.ACACIA);
+                    drops.add(new ItemStack(logState.getBlock()));
+                    break;
             }
-
-            // reset the crop to its initial state
-            worldIn.setBlockState(fuelPos, fuelBlock.getDefaultState());
         }
 
         return drops;
@@ -94,20 +114,20 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
         Block fuelBlock = worldIn.getBlockState(fuelPos).getBlock();
         NonNullList<ItemStack> drops = NonNullList.create();
 
-        if (fuelBlock instanceof ContainerFruit) {
-            ((ContainerFruit) fuelBlock).getContents(drops, worldIn, fuelPos);
-        } else if (isHarvestable(fuelBlock)){
-            fuelBlock.getDrops(drops, worldIn, fuelPos, fuelState, fortune);
+        if (fuelBlock instanceof BlockSapling) {
+            IBlockState saplingState = worldIn.getBlockState(fuelPos);
 
-            boolean hasGrabbedSeed = false;
-            // remove a seed item to replant
-            for (int i = 0; i < drops.size(); i++) {
-                ItemStack drop = drops.get(i);
-
-                if (!hasGrabbedSeed && drop.isItemEqual(fuelBlock.getItem(worldIn, fuelPos, fuelState))) {
-                    drop.shrink(1);
-                    hasGrabbedSeed = true;
-                }
+            switch ((BlockPlanks.EnumType)saplingState.getValue(BlockSapling.TYPE)) {
+                case SPRUCE:
+                case ACACIA:
+                case DARK_OAK:
+                case OAK:
+                case BIRCH:
+                case JUNGLE:
+                default:
+                    IBlockState logState = Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT, BlockPlanks.EnumType.ACACIA);
+                    drops.add(new ItemStack(logState.getBlock()));
+                    break;
             }
         }
 
@@ -130,34 +150,43 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
 
             /* we are not doing anything with the remainder right now
             * but maybe later we can... */
-            cookAndInsert(worldIn, targetPos, drops);
+            insert(worldIn, targetPos, drops);
         });
     }
 
-    /* this is here for now, the logic is that the stem does the cooking, and then
-    * feeds the cooked drops into the fruit, which is just a container */
-    /* cook and insert will do bounds checking on the fruit, and fail to insert if the fruit is full */
-    private void cookAndInsert(World worldIn, BlockPos pos, NonNullList<ItemStack> drops) {
-        NonNullList<ItemStack> cooked = NonNullList.create();
-
-        for (ItemStack drop : drops) {
-            ItemStack output = FurnaceRecipes.instance().getSmeltingResult(drop).copy();
-
-            if (!output.isEmpty()) {
-                output.setCount(drop.getCount());
-                cooked.add(output);
-            }
-        }
-
-        if (cooked.isEmpty()) return;
-
+    private void insert(World worldIn, BlockPos pos, NonNullList<ItemStack> drops) {
         Block block = worldIn.getBlockState(pos).getBlock();
 
         if (isContainerFruit(block)) {
             ContainerFruit fruit = (ContainerFruit) block;
 
             if (!fruit.isFull(worldIn, pos)) {
-                fruit.insertContents(cooked, worldIn, pos);
+                fruit.insertContents(drops, worldIn, pos);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onSaplingGrowTree(SaplingGrowTreeEvent event) {
+        World worldIn = event.getWorld();
+
+        if (!worldIn.isRemote) {
+            BlockPos eventPos = event.getPos();
+            BlockPos from = eventPos.west().north();
+            BlockPos to = eventPos.east().south();
+            Iterator<BlockPos> neighbourhood = BlockPos.getAllInBox(from, to).iterator();
+
+            BlockPos stemPos = null;
+
+            while (neighbourhood.hasNext() && stemPos == null) {
+                BlockPos current = neighbourhood.next();
+                Block block = worldIn.getBlockState(current).getBlock();
+
+                if (block == ModBlocks.stemLumberjack) {
+                    // stop that sapling!
+                    event.setResult(Event.Result.DENY);
+                    worldIn.scheduleUpdate(current, block, 0);
+                }
             }
         }
     }
@@ -180,13 +209,8 @@ public class BlockStemBakersSquash extends BlockStemCucurbit
 
             IBlockState blockState = worldIn.getBlockState(current);
 
-            /* returns only the drops that are fuel */
-            NonNullList<ItemStack> drops = getDropsFromFuel(worldIn, current, blockState, 0);
-
-            for (ItemStack drop : drops) {
-                if (!FurnaceRecipes.instance().getSmeltingResult(drop).isEmpty()) {
-                    fuelPos = current;
-                }
+            if (blockState.getBlock() instanceof BlockSapling) {
+                fuelPos = current;
             }
         }
 

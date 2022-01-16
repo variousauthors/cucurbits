@@ -1,0 +1,37 @@
+{
+  "forge_marker": 1,
+  "variants": {
+    "age": {
+      "0": {
+        "model": "scaffold:stem_lavamelon_growth0"
+      },
+      "1": {
+        "model": "scaffold:stem_lavamelon_growth1"
+      },
+      "2": {
+        "model": "scaffold:stem_lavamelon_growth2"
+      },
+      "3": {
+        "model": "scaffold:stem_lavamelon_growth3"
+      },
+      "4": {
+        "model": "scaffold:stem_lavamelon_growth4"
+      },
+      "5": {
+        "model": "scaffold:stem_lavamelon_growth5"
+      },
+      "6": {
+        "model": "scaffold:stem_lavamelon_growth6"
+      },
+      "7": {
+      }
+    },
+    "facing": {
+      "up": { "model": "scaffold:stem_lavamelon_growth7" },
+      "west": { "model": "scaffold:stem_lavamelon_fruit" },
+      "east": { "model": "scaffold:stem_lavamelon_fruit", "y": 180 },
+      "north": { "model": "scaffold:stem_lavamelon_fruit", "y": 90 },
+      "south": { "model": "scaffold:stem_lavamelon_fruit", "y": 270 }
+    }
+  }
+}
